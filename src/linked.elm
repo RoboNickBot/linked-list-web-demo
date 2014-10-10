@@ -34,12 +34,9 @@ pageColor = rgba 220 220 256 0.8
 mainHeader : Element
 mainHeader = [markdown|
 
-Let's make a list!
-==================
+Let's make a Linked List!
+=========================
 
-Just type a space-separated list of things in the text-box below
-
-(also, take a look at the [source code](lists.elm) for this page. It's nice!)
 
 |]
 --
