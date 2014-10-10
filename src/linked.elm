@@ -5,6 +5,7 @@
 -- page, keeping everything appropriately spaced and sized
 --
 
+import Maybe as Maybe
 import String as Str
 import Window
 import Graphics.Input (Input, input)
@@ -63,35 +64,57 @@ scene fieldContent (w,h) = flow down
     , color white <| Field.field Field.defaultStyle content.handle identity "..."
         fieldContent
     , collage w (w // defaultListSize) 
-        (buildTree (w-50) fieldContent.string)
+        (buildTree (w-50) (makeList fieldContent.string))
     ]
   
 
-marginScale : Float -> Element -> Element
-marginScale f el =
-  let (w,h) = sizeOf el
-  in  collage w h [ scale f <| toForm el ]
-
-buildTree : Int -> String -> [Form]
-buildTree w ss =
+makeList : String -> [Element]
+makeList ss =
   if Str.isEmpty ss
      then []
-     else let ws = Str.words ss
-              i = max defaultListSize (length ws)
-              s = (w // i)
-          in boxes (w-s) s i ws
+     else let ns = map (Maybe.maybe 100 (\n -> n)) <| map Str.toInt (Str.words ss)
+          in rec 0 ns
 
-boxes : Int -> Int -> Int -> [String] -> [Form]
-boxes w s i css = case css of
-  (c::cs) ->
+rec : Int -> [Int] -> [Element]
+rec i ns = 
+  let mval = mHead <| drop i ns
+      madr = mHead <| drop (i+1) ns
+  in
+     if Maybe.isJust madr
+        then let val = Maybe.maybe -1 (\n -> n) mval
+                 adr = Maybe.maybe -1 (\n -> n) madr
+             in (plainText <| ((show i)++(":")++(show val)++(" -> ")++(show adr))) :: rec adr ns
+        else []
+
+mHead : [a] -> Maybe a
+mHead bss = case bss of
+  (b::bs) -> Just b
+  []      -> Nothing
+
+
+strToElems : String -> [Element]
+strToElems ss =
+  if Str.isEmpty ss
+     then []
+     else map plainText (Str.words ss)
+
+buildTree : Int -> [Element] -> [Form]
+buildTree w bs =
+     let i = max defaultListSize (length bs)
+         s = (w // i)
+     in boxes (w-s) s i bs
+
+boxes : Int -> Int -> Int -> [Element] -> [Form]
+boxes w s i bss = case bss of
+  (b::bs) ->
     let offset = ((toFloat w) / 2 ) - (toFloat ((i-1) * s))
-    in (moveX offset (box s c)) :: (boxes w s (i-1) cs)
+    in (moveX offset (box s b)) :: (boxes w s (i-1) bs)
   [] -> []
 
-box : Int -> String -> Form 
-box s cs = 
+box : Int -> Element -> Form 
+box s b = 
   let sf = 0.7 * (toFloat s)
   in toForm (collage s s
               [ (filled boxColor (rect sf sf))
-              , toForm (plainText cs)
+              , toForm b
               ])
