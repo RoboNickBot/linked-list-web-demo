@@ -2,11 +2,12 @@ body {
   /* color: blue; */
   /* background-color: #424242; */
   background-color: #DCDCFF;
+  font-size: large;
 }
 
 div.page {
   background-color: #C2C2FF;
-  width: 600px;
+  width: 700px;
   margin-left: 4em;
   padding-right: 50px;
   padding-left: 50px;
@@ -25,6 +26,9 @@ a:visited {
 
 p { 
   background-color: #E0E0FF;
-  width: 600px;
-  padding: 0;
+  width: 590px;
+  margin-left: 50px;
+  margin-right: 50px;
+  padding-left: 5px;
+  padding-right: 5px;
 }
