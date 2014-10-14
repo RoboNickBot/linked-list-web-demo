@@ -1,0 +1,30 @@
+body {
+  /* color: blue; */
+  /* background-color: #424242; */
+  background-color: #DCDCFF;
+}
+
+div.page {
+  background-color: #C2C2FF;
+  width: 600px;
+  margin-left: 4em;
+  padding-right: 50px;
+  padding-left: 50px;
+  padding-bottom: 4em;
+}
+div.section {
+  background-color: #D0D0FF;
+}
+
+a:link {
+  color: blue;
+}
+a:visited {
+  color: blue;
+}
+
+p { 
+  background-color: #E0E0FF;
+  width: 600px;
+  padding: 0;
+}

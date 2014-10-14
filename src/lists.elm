@@ -24,7 +24,7 @@ boxColor : Color
 boxColor = rgba 150 90 240 0.8
 
 pageColor : Color
-pageColor = rgba 220 220 256 0.8 
+pageColor = rgba 220 220 255 0.8 
 
 -- ---------------------------------------
 -- Intermission, featuring Markdown
