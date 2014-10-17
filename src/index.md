@@ -18,6 +18,8 @@ Capstone pages:
 
 + [Linked List](linked.html)
 
++ [Basic list re-implemented in Haskell (via GHCJS)](lists2.html)
+
 [```Presentation -->```](p1.html)
 ---------------------------------
 

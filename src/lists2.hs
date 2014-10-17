@@ -2,7 +2,7 @@
 
 -- import Control.Monad
 import Data.Default
--- import Data.Text (Text)
+import qualified Data.Text as T(empty, pack, unpack, Text)
 import JavaScript.Canvas
 import JavaScript.JQuery hiding (Event)
 import GHCJS.Types
@@ -13,42 +13,52 @@ import Reactive.Banana
 import Reactive.Banana.Frameworks
 
 main = do
+  box <- select "#theTextBox"
   ctx <- getContext =<< indexArray 0 . castRef =<< select "#theCanvas"
-  btn <- select "#theButton"
-  bEvent <- wireButton btn
-  network <- compile (netDesc bEvent ctx)
+  tEvent <- wireTextBox box
+  network <- compile (netDesc tEvent ctx)
   actuate network
 
-netDesc :: Frameworks t => AddHandler () -> Context -> Moment t ()
-netDesc addButtonEvent ctx = do
-  eClicks <- fromAddHandler addButtonEvent
-  let bCount = accumB 0 $ (\x -> x+1) <$ eClicks
-  eCountChange <- changes bCount
-  reactimate' $ fmap (\n -> drawList n ctx) <$> eCountChange
+netDesc :: Frameworks t 
+        => AddHandler (T.Text)
+        -> Context 
+        -> Moment t ()
+netDesc addBoxEvent ctx = do
+  eText <- fromAddHandler addBoxEvent
+  let bText = stepper T.empty eText
+  let bString = T.unpack <$> bText
+  eStringChange <- changes bString
+  reactimate' $ fmap (\ss -> drawList ss ctx) <$> eStringChange
 
-wireButton :: JQuery -> IO (AddHandler ())
-wireButton button = do
+wireTextBox :: JQuery -> IO (AddHandler T.Text)
+wireTextBox box = do
   (addHandler, fire) <- newAddHandler
-  let handler _ = fire ()
-  click handler def button
+  text <- getVal box
+  let handler _ = fire =<< getVal box
+  keyup handler def box
   return addHandler
 
-drawList :: Int -> Context -> IO ()
-drawList i ctx = do
+drawList :: String -> Context -> IO ()
+drawList ss ctx = do
+  let ws = words ss
   save ctx
-  clearRect 0 0 600 200 ctx 
+  clearRect 0 0 700 400 ctx 
   restore ctx
-  r i ctx
+  r (reverse ws) (length ws) (min 200 (700 / (fromIntegral $ length ws))) ctx
 
-r i ctx = 
-  let ii = fromIntegral i
-  in if i > 0
-     then drawRect (105*ii) 100.0 ctx >> r (i-1) ctx
+r :: [String] -> Int -> Double -> Context -> IO ()
+r (w:ws) l d ctx = 
+  let ii = fromIntegral l
+  in if l > 0
+     then drawRect w d ((d*(ii-1))+(d/2)) 100 ctx >> r ws (l-1) d ctx
      else return ()
+r _ _ _ _ = return ()
 
-drawRect :: Double -> Double -> Context -> IO ()
-drawRect x y ctx = do
+drawRect :: String -> Double -> Double -> Double -> Context -> IO ()
+drawRect w d x y ctx = do
   save ctx
   translate x y ctx
-  strokeRect (-50) (-50) 100 100 ctx
+  font "20px Ariel" ctx
+  fillText (T.pack w) 0 0 ctx
+  strokeRect (-(d/2)+2) (-(d/2)+2) (d-4) (d-4) ctx
   restore ctx

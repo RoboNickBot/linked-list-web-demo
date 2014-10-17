@@ -1,6 +1,9 @@
 build:
 	mkdir build
 	mkdir build/src
+	cabal configure --ghcjs
+	cabal build
+	cp -v dist/build/capstone/capstone.jsexe/* build/src/
 	pandoc -r markdown -w html -o build/src/index.html src/index.md
 	pandoc -r markdown -w html -o build/src/p1.html src/p1.md
 	pandoc -r markdown -w html -o build/src/p2.html src/p2.md
@@ -10,10 +13,14 @@ build:
 	elm --bundle-runtime src/lists.elm
 	elm --bundle-runtime src/linked.elm
 	cp -v src/* build/src
+	tar -czf pages.tgz build/src/*
 
 clean:
 	rm -vr build
 	rm -vr cache
+	rm -vr dist
+	rm -v pages.tgz
 
 install:
-	scp build/src/* nlewchen@turing.slu.edu:WWW/
+	scp pages.tgz nlewchen@turing.slu.edu:WWW/
+	ssh nlewchen@turing.slu.edu "cd WWW && tar -xvzf pages.tgz && cp build/src/* ./ && rm -rf build && rm pages.tgz"
