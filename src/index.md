@@ -1,6 +1,6 @@
 <html>
 <head>
-  <title>Capstone things</title>
+  <title>science??</title>
   <link rel="stylesheet" href="main.css"></link>
 </head>
 
@@ -9,8 +9,8 @@
 <div class="page">
 
 
-Capstone pages:
-===============
+Capstone Project Pages:
+=======================
 
 + [Pure JavaScript/HTML Animation](game.html)
 
