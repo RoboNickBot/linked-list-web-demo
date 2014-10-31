@@ -10,7 +10,9 @@ build:
 	pandoc -r markdown -w html -o build/src/p3.html src/p3.md
 	pandoc -r markdown -w html -o build/src/p4.html src/p4.md
 	pandoc -r markdown -w html -o build/src/p5.html src/p5.md
-	cp -v src/* build/src
+	cp -v src/*.html build/src
+	cp -v src/*.css build/src
+	cp -v src/*.js build/src
 	tar -czf pages.tgz build/src/*
 
 clean:

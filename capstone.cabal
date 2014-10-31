@@ -17,7 +17,7 @@ cabal-version:       >=1.10
 
 executable capstone
   main-is:             lists2.hs
-  -- other-modules:       
+  other-modules:       Capstone.Links
   -- other-extensions:    
   build-depends:       base >=4.7 && <4.8, data-default, text, ghcjs-canvas, ghcjs-jquery, ghcjs-base, reactive-banana
   hs-source-dirs:      src

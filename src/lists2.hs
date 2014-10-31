@@ -1,25 +1,23 @@
 {-# LANGUAGE CPP, OverloadedStrings, ForeignFunctionInterface #-}
 
--- import Control.Monad
+import Capstone.Links (compute)
 import Data.Default
 import qualified Data.Text as T(empty, pack, unpack, Text)
 import JavaScript.Canvas
 import JavaScript.JQuery hiding (Event)
 import GHCJS.Types
 import GHCJS.Foreign
--- import GHCJS.Types
--- import GHCJS.Foreign
 import Reactive.Banana
 import Reactive.Banana.Frameworks
 
 main = do
   buttonspot <- select "#buttonSpot"
-  box <- select "#theTextBox"
-  -- boxbox <- select "#boxbox"
+  boxbox <- select "#boxbox"
   ctx <- getContext =<< indexArray 0 . castRef =<< select "#theCanvas"
   button <- makeButton buttonspot
-  -- bs <- makeBoxes 20 boxbox []
-  tEvent <- wireTextBox box button
+  -- if you change the 10 here, change the 10 in makeBoxes' def too!
+  bs <- makeBoxes 10 boxbox []
+  tEvent <- wireTextBoxes bs button
   network <- compile (netDesc tEvent ctx)
   actuate network
 
@@ -31,15 +29,14 @@ makeButton parent = do
   return button
 
 netDesc :: Frameworks t 
-        => AddHandler (T.Text)
+        => AddHandler ([String])
         -> Context 
         -> Moment t ()
-netDesc addBoxEvent ctx = do
-  eText <- fromAddHandler addBoxEvent
-  let bText = stepper T.empty eText
-  let bString = T.unpack <$> bText
-  eStringChange <- changes bString
-  reactimate' $ fmap (\ss -> drawList ss ctx) <$> eStringChange
+netDesc addButtonEvent ctx = do
+  eStrings <- fromAddHandler addButtonEvent
+  let bStrings = stepper [] eStrings
+  stringChange <- changes bStrings
+  reactimate' $ fmap (\ss -> drawList (compute ss) ctx) <$> stringChange
 
 wireTextBox :: JQuery -> JQuery -> IO (AddHandler T.Text)
 wireTextBox box button = do
@@ -49,9 +46,26 @@ wireTextBox box button = do
   click handler def button
   return addHandler
 
-drawList :: String -> Context -> IO ()
-drawList ss ctx = do
-  let ws = words ss
+wireTextBoxes :: [JQuery] -> JQuery -> IO (AddHandler [String])
+wireTextBoxes bs button = do
+  (addHandler, fire) <- newAddHandler
+  let handler _ = fire =<< getVals bs
+  click handler def button
+  return addHandler
+
+getVals :: [JQuery] -> IO [String]
+getVals (b:bs) = do
+  t <- getVal b
+  let s = T.unpack t
+  ss <- getVals bs
+  -- print $ concat (s:ss)
+  return (s:ss)
+  --s <- getVal b
+  --return $ (:) s $ =<< getVals bs
+getVals _ = return []
+
+drawList :: [String] -> Context -> IO ()
+drawList ws ctx = do
   save ctx
   clearRect 0 0 700 400 ctx 
   restore ctx
@@ -78,7 +92,8 @@ makeBoxes :: Int -> JQuery -> [JQuery] -> IO [JQuery]
 makeBoxes n p bs = 
   if n > 0
   then do
-    b <- select "<input style=\"width: 20px;\" type=\"text\" name=\"a\" />"
+    b <- select $ T.pack $ "<div style=\"border-style: solid; margin: 4px; width: 30px; float: left;\"><div style=\"width: 20px;\">"++ show (10-n) ++"</div><input id=\"hey"++ (show n) ++"\" style=\"width: 20px;\" type=\"text\" name=\"a\" /></div>"
     appendJQuery b p
-    makeBoxes (n-1) p (b:bs)
+    c <- select $ T.pack $ "#hey"++(show n)
+    makeBoxes (n-1) p (c:bs)
   else return (reverse bs)
