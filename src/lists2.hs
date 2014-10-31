@@ -13,11 +13,22 @@ import Reactive.Banana
 import Reactive.Banana.Frameworks
 
 main = do
+  buttonspot <- select "#buttonSpot"
   box <- select "#theTextBox"
+  -- boxbox <- select "#boxbox"
   ctx <- getContext =<< indexArray 0 . castRef =<< select "#theCanvas"
-  tEvent <- wireTextBox box
+  button <- makeButton buttonspot
+  -- bs <- makeBoxes 20 boxbox []
+  tEvent <- wireTextBox box button
   network <- compile (netDesc tEvent ctx)
   actuate network
+
+makeButton :: JQuery -> IO JQuery
+makeButton parent = do
+  button <- select "<button />"
+  setText "button" button
+  appendJQuery button parent
+  return button
 
 netDesc :: Frameworks t 
         => AddHandler (T.Text)
@@ -30,12 +41,12 @@ netDesc addBoxEvent ctx = do
   eStringChange <- changes bString
   reactimate' $ fmap (\ss -> drawList ss ctx) <$> eStringChange
 
-wireTextBox :: JQuery -> IO (AddHandler T.Text)
-wireTextBox box = do
+wireTextBox :: JQuery -> JQuery -> IO (AddHandler T.Text)
+wireTextBox box button = do
   (addHandler, fire) <- newAddHandler
   text <- getVal box
   let handler _ = fire =<< getVal box
-  keyup handler def box
+  click handler def button
   return addHandler
 
 drawList :: String -> Context -> IO ()
@@ -62,3 +73,12 @@ drawRect w d x y ctx = do
   fillText (T.pack w) 0 0 ctx
   strokeRect (-(d/2)+2) (-(d/2)+2) (d-4) (d-4) ctx
   restore ctx
+
+makeBoxes :: Int -> JQuery -> [JQuery] -> IO [JQuery]
+makeBoxes n p bs = 
+  if n > 0
+  then do
+    b <- select "<input style=\"width: 20px;\" type=\"text\" name=\"a\" />"
+    appendJQuery b p
+    makeBoxes (n-1) p (b:bs)
+  else return (reverse bs)
