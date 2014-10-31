@@ -1,4 +1,4 @@
-module Capstone.Links ( getAtIndex, readInt, compute ) where
+module Demo.Links ( getAtIndex, readInt, compute ) where
 
 import Text.Read (readMaybe)
 

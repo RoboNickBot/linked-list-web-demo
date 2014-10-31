@@ -3,7 +3,7 @@ build:
 	mkdir build/src
 	cabal configure --ghcjs
 	cabal build
-	cp -v dist/build/capstone/capstone.jsexe/* build/src/
+	cp -v dist/build/web-demos/web-demos.jsexe/* build/src/
 	pandoc -r markdown -w html -o build/src/index.html src/index.md
 	pandoc -r markdown -w html -o build/src/p1.html src/p1.md
 	pandoc -r markdown -w html -o build/src/p2.html src/p2.md

@@ -1,6 +1,6 @@
 {-# LANGUAGE CPP, OverloadedStrings, ForeignFunctionInterface #-}
 
-import Capstone.Links (compute)
+import Demo.Links (compute)
 import Data.Default
 import qualified Data.Text as T(empty, pack, unpack, Text)
 import JavaScript.Canvas
