@@ -1,4 +1,4 @@
-module Demo.Links ( getAtIndex, readInt, compute ) where
+module Demo.Links ( randomList, getAtIndex, readInt, compute ) where
 
 import Text.Read (readMaybe)
 
@@ -25,3 +25,6 @@ getAtIndex :: Int -> [a] -> Maybe a
 getAtIndex 0 (x:_) = Just x
 getAtIndex i (_:xs) = getAtIndex (i-1) xs
 getAtIndex _ _ = Nothing
+
+randomList :: IO ([String])
+randomList = return ["a", "3", "", "b", "8", "d", "14", "", "c", "5"]
