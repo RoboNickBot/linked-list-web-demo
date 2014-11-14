@@ -14,7 +14,6 @@ main = do
   buttonspot <- select "#buttonSpot"
   boxbox <- select "#boxbox"
   randomButton <- select "#randomButton"
-  setText "random" randomButton
   ctx <- getContext =<< indexArray 0 . castRef =<< select "#theCanvas"
   button <- makeButton buttonspot
   -- if you change the 10 here, change the 10 in makeBoxes' def too!
@@ -26,9 +25,7 @@ main = do
 
 makeButton :: JQuery -> IO JQuery
 makeButton parent = do
-  button <- select "<button />"
-  setText "button" button
-  appendJQuery button parent
+  button <- select "#draw"
   return button
 
 netDesc :: Frameworks t 
@@ -115,7 +112,7 @@ makeBoxes :: Int -> JQuery -> [JQuery] -> IO [JQuery]
 makeBoxes n p bs = 
   if n > 0
   then do
-    b <- select $ T.pack $ "<div style=\"border-style: solid; margin: 4px; width: 30px; float: left;\"><div style=\"width: 20px;\">"++ show (10-n) ++"</div><input id=\"hey"++ (show n) ++"\" style=\"width: 20px;\" type=\"text\" name=\"a\" /></div>"
+    b <- select $ T.pack $ "<div class=\"outer\"><div class=\"inner\">"++ show (10-n) ++"</div><input id=\"hey"++ (show n) ++"\" type=\"text\" name=\"a\" /></div>"
     appendJQuery b p
     c <- select $ T.pack $ "#hey"++(show n)
     makeBoxes (n-1) p (c:bs)

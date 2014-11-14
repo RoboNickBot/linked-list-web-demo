@@ -10,16 +10,42 @@
     <style type="text/css"> html, body { width: 100%; height: 100%; margin: 0; padding: 0; }</style>
   </head>
   <body>
-  <div class="page">
-    <h1>Let's make another list!</h1>
-    <p>
-      <a href="lists2.hs">(Take a look at the source code? It's needs refactoring...)</a>
-    </p>
-    <div id="boxbox"></div>
-    <div id="buttonSpot" style="float: right;"></div>
-    <div id="randbuttonSpot" style="float: right;"><button id="randomButton" /></div>
-    <canvas id="theCanvas" width="700" height="400"></canvas>
-  </div>
+    <div class="page">
+
+      <h1 class="title">A Gentle Introduction to Linked Lists</h1>
+
+      <div class="upper-controls">
+        <ul>
+          <li><p>Number of Memory Cells:</p></li>
+          <li><input id="numcells" type="text" name="a" /></li>
+          <li><p>Starting Index:</p></li>
+          <li><input id="starthead" type="text" name="a" /></li>
+          <li><button id="generatenew">Generate Cells</button></li>
+        </ul>
+      </div>
+
+      <div class="lower-controls">
+        <div class="cells">
+          <p>Memory Cell Contents:</p>
+          <div id="boxbox" class="boxes"></div>
+        </div>
+
+        <div class="cells">
+          <p>Head Index:</p>
+          <div class="boxes"><input id="head" type="text" /></div>
+        </div>
+
+        <div class="buttons">
+          <button id="randomButton">Randomize Memory</button>
+          <button id="draw">Compute and Draw</button>
+        </div>
+      </div>
+
+      <div class="drawing">
+        <canvas id="theCanvas" width="700" height="400"></canvas>
+      </div>
+
+    </div>
   </body>
   <script language="javascript">
 

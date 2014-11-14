@@ -1,18 +1,19 @@
 body {
   /* color: blue; */
   /* background-color: #424242; */
-  background-color: #DCDCFF;
-  font-size: large;
+  /* background-color: #DCDCFF; (the blue one) */
 }
 
 div.page {
-  background-color: #C2C2FF;
+  /* background-color: #C2C2FF; (blue) */
+  background-color: #E3E3E3;
   width: 700px;
   margin-left: 4em;
   padding-right: 50px;
   padding-left: 50px;
   padding-bottom: 4em;
 }
+
 div.section {
   background-color: #D0D0FF;
 }
@@ -24,11 +25,139 @@ a:visited {
   color: blue;
 }
 
-p { 
-  background-color: #E0E0FF;
-  width: 590px;
-  margin-left: 50px;
-  margin-right: 50px;
+div.box {
+  border-style: solid;
+  padding: 4px;
+}
+div.outer {
+  /*border-style: solid; */
+  margin: 0px;
+  width: 30px;
+  float: left;
+}
+
+div.inner {
+  text-align: center;
+  font-size: 0.8em;
+}
+
+div.outer input {
+  width: 28px;
+  height: 28px;
+}
+
+div.boxes input {
+  margin: 0px;
+  padding: 0px;
+  border-style: solid;
+  border-color: black;
+  text-align: center;
+  font-size: 1em;
+}
+
+#head {
+  width: 30px;
+  height: 30px;
+}
+
+h1.title {
+  font-size: 1.3em;
+  font-weight: normal;
+  font-family: serif;
+
+  padding-top: 0.5em;
+  padding-bottom: 0.2em;
+  /*
+  padding-left: auto;
+  padding-right: auto;
+  */
+  margin-left: auto;
+  margin-right: auto;
+  text-align: center;
+}
+
+div.upper-controls {
+  border-style: solid;
+  border-width: thin;
+  border-bottom-style: none;
+  padding-left: auto;
+  padding-right: auto;
+  padding-top: 0.5em;
+  padding-bottom: 0.5em;
+}
+
+div.lower-controls {
+  border-style: solid;
+  border-width: thin;
+  border-bottom-style: none;
+  padding-left: auto;
+  padding-right:auto;
+  padding-top: 0.2em;
+  padding-bottom: 0.4em;
+  height: 15em;
+}
+
+div.cells {
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: auto;
+  padding-right: auto;
+  margin-top: 0.5em;
+  height: 5em;
+  width: 420px;
+}
+
+div.cells p {
+  text-align: center;
+  font-size: 0.8em;
   padding-left: 5px;
   padding-right: 5px;
+  margin-left: 0;
+  margin-right: 0;
+  width: 110px;
+  float: left;
+}
+
+div.drawing {
+  border-style: solid;
+  border-width: thin;
+  padding-left: auto;
+  padding-right: auto;
+  padding-top: 0;
+}
+
+div.buttons {
+  margin: 2em;
+}
+
+div.upper-controls ul {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+div.upper-controls li {
+  display: inline;
+}
+
+div.upper-controls button {
+  display: inline;
+}
+
+div.upper-controls p {
+  display: inline;
+}
+
+div.upper-controls input {
+  width: 30px;
+  display: inline;
+  margin-right: 1.5em;
+}
+
+#boxbox {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#randomButton {
+  margin-right: 320px;
 }
