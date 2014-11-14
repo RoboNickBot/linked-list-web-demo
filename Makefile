@@ -21,5 +21,5 @@ clean:
 	rm -v pages.tgz
 
 install:
-	scp pages.tgz nlewchen@turing.slu.edu:WWW/
-	ssh nlewchen@turing.slu.edu "cd WWW && tar -xvzf pages.tgz && cp build/src/* ./ && rm -rf build && rm pages.tgz"
+	scp pages.tgz akira:/www/
+	ssh akira "cd /www/ && tar -xvzf pages.tgz && cp build/src/* ./ && rm -rf build && rm pages.tgz"
