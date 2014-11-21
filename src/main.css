@@ -1,14 +1,29 @@
+
 body {
   /* color: blue; */
   /* background-color: #424242; */
   /* background-color: #DCDCFF; (the blue one) */
 }
 
+div.super {
+  padding-top: 20px;
+  min-height: 95%;
+}
+
+#theCanvas {
+  margin-left: auto;
+  margin-right: auto;
+  display: table;
+  background-color: #FFFFFF;
+}
+
 div.page {
   /* background-color: #C2C2FF; (blue) */
   background-color: #E3E3E3;
-  width: 700px;
-  margin-left: 4em;
+  /*width: 700px;*/
+  margin-left: 3%;
+  margin-right: 3%;
+  margin-bottom: 4%;
   padding-right: 50px;
   padding-left: 50px;
   padding-bottom: 4em;
@@ -33,12 +48,13 @@ div.outer {
   /*border-style: solid; */
   margin: 0px;
   width: 30px;
-  float: left;
+  display: inline-block;
+  /*float: left;*/
 }
 
 div.inner {
   text-align: center;
-  font-size: 0.8em;
+  /*font-size: 0.8em;*/
 }
 
 div.outer input {
@@ -74,6 +90,7 @@ h1.title {
   margin-left: auto;
   margin-right: auto;
   text-align: center;
+  margin-top: 0;
 }
 
 div.upper-controls {
@@ -94,45 +111,49 @@ div.lower-controls {
   padding-right:auto;
   padding-top: 0.2em;
   padding-bottom: 0.4em;
-  height: 15em;
+  /*height: 15em;*/
 }
 
 div.cells {
   margin-left: auto;
   margin-right: auto;
-  padding-left: auto;
-  padding-right: auto;
+  padding-left: 0;
+  padding-right: 0;
   margin-top: 0.5em;
   height: 5em;
-  width: 420px;
+  display: table;
+  /*width: 420px;*/
 }
 
 div.cells p {
   text-align: center;
-  font-size: 0.8em;
+  /*font-size: 0.8em;*/
   padding-left: 5px;
   padding-right: 5px;
   margin-left: 0;
   margin-right: 0;
   width: 110px;
-  float: left;
+  /*float: left;*/
+  display: inline-block;
 }
 
 div.drawing {
+  margin-bottom: 3em;
   border-style: solid;
   border-width: thin;
-  padding-left: auto;
-  padding-right: auto;
-  padding-top: 0;
+  padding: 0;
 }
 
 div.buttons {
-  margin: 2em;
+  margin-left: auto;
+  margin-right: auto;
+  display: table;
 }
 
 div.upper-controls ul {
   margin-left: auto;
   margin-right: auto;
+  display: table;
 }
 
 div.upper-controls li {
@@ -153,11 +174,16 @@ div.upper-controls input {
   margin-right: 1.5em;
 }
 
-#boxbox {
+div.boxes {
   margin-left: auto;
   margin-right: auto;
+  display: inline-block;
 }
 
-#randomButton {
-  margin-right: 320px;
+div.buttons button {
+  margin: 2em;
+}
+
+div.break {
+  height: 1em;
 }

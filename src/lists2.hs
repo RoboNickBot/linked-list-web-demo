@@ -11,6 +11,9 @@ import Reactive.Banana
 import Reactive.Banana.Frameworks
 
 main = do
+  dim <- getCanvasDimensions
+  cs <- select "#drawingbox"
+  makeCanvas dim cs
   buttonspot <- select "#buttonSpot"
   boxbox <- select "#boxbox"
   randomButton <- select "#randomButton"
@@ -23,9 +26,33 @@ main = do
   network <- compile (netDesc tEvent rEvent ctx bs)
   actuate network
 
+makeCanvas :: (Int, Int) -> JQuery -> IO JQuery
+makeCanvas (w,h) p = do
+  c <- select $ T.pack $ "<canvas id=\"theCanvas\" width=\""
+                         ++ show w
+                         ++ "\" height=\""
+                         ++ show h
+                         ++ "\"></canvas>"
+  appendJQuery c p
+  select "#theCanvas"
+
+killCanvas :: IO ()
+killCanvas = do
+  c <- select "#theCanvas"
+  remove c
+  return ()
+
+resizeCanvas :: IO ()
+resizeCanvas = do
+  killCanvas
+  dim <- getCanvasDimensions
+  cs <- select "#drawingbox"
+  makeCanvas dim cs
+  return ()
+
 makeButton :: JQuery -> IO JQuery
 makeButton parent = do
-  button <- select "#draw"
+  button <- select "#drawButton"
   return button
 
 netDesc :: Frameworks t 
@@ -65,7 +92,6 @@ wireRandom rb = do
   let handler _ = fire =<< randomList
   click handler def rb
   return addHandler
-
 
 fillList :: [String] -> [JQuery] -> IO ()
 fillList (s:ss) (b:bb) = do
@@ -117,3 +143,14 @@ makeBoxes n p bs =
     c <- select $ T.pack $ "#hey"++(show n)
     makeBoxes (n-1) p (c:bs)
   else return (reverse bs)
+
+getCanvasDimensions :: IO (Int,Int)
+getCanvasDimensions = do
+  sh <- getHeight =<< select "#s"
+  ah <- getHeight =<< select "#a"
+  bh <- getHeight =<< select "#b"
+  ch <- getHeight =<< select "#c"
+  dw <- getWidth =<< select "#drawingbox"
+  let h = floor $ sh - ah - bh - ch - 200
+      w = floor $ dw - 13 -- not sure why i need this...
+  return (w,h)

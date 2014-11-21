@@ -10,11 +10,12 @@
     <style type="text/css"> html, body { width: 100%; height: 100%; margin: 0; padding: 0; }</style>
   </head>
   <body>
+    <div id="s" class="super">
     <div class="page">
 
-      <h1 class="title">A Gentle Introduction to Linked Lists</h1>
+      <h1 id="a" class="title">A Gentle Introduction to Linked Lists</h1>
 
-      <div class="upper-controls">
+      <div id="b" class="upper-controls">
         <ul>
           <li><p>Number of Memory Cells:</p></li>
           <li><input id="numcells" type="text" name="a" /></li>
@@ -24,28 +25,27 @@
         </ul>
       </div>
 
-      <div class="lower-controls">
+      <div id="c" class="lower-controls">
         <div class="cells">
           <p>Memory Cell Contents:</p>
           <div id="boxbox" class="boxes"></div>
-        </div>
-
-        <div class="cells">
+            <div class="break"></div>
           <p>Head Index:</p>
           <div class="boxes"><input id="head" type="text" /></div>
         </div>
 
         <div class="buttons">
           <button id="randomButton">Randomize Memory</button>
-          <button id="draw">Compute and Draw</button>
+          <button id="drawButton">Compute and Draw</button>
         </div>
       </div>
 
-      <div class="drawing">
-        <canvas id="theCanvas" width="700" height="400"></canvas>
+      <div id="drawingbox" class="drawing">
+        <!-- <canvas id="theCanvas" width="700" height="400"></canvas> -->
       </div>
 
     </div>
+  </div>
   </body>
   <script language="javascript">
 
