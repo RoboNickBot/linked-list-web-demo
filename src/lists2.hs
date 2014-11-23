@@ -151,6 +151,6 @@ getCanvasDimensions = do
   bh <- getHeight =<< select "#b"
   ch <- getHeight =<< select "#c"
   dw <- getWidth =<< select "#drawingbox"
-  let h = floor $ sh - ah - bh - ch - 200
+  let h = floor $ sh - ah - bh - ch - 170
       w = floor $ dw - 13 -- not sure why i need this...
   return (w,h)
