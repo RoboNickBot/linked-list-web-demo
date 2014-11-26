@@ -1,8 +1,9 @@
-module Demo.Links ( parseInput ) where
+module Demo.Links ( parseInput
+                  , emptyInput ) where
 
 import Text.Read (readMaybe)
 import Demo.Types
-import qualified Data.Map as M (lookup)
+import qualified Data.Map as M (empty, lookup)
 
 {- I think there is a lot of refactoring-opportunity in here,
    especially concerning the use of monads, but we'll leave that
@@ -16,11 +17,11 @@ import qualified Data.Map as M (lookup)
 type Step = (MemSt, [Int]) -> Maybe Cell -> [DElem]
 
 parseInput :: InputState -> Either String [DElem]
-parseInput (s, ls) = fmap (parse (ls,[]) box) (testHead s)
+parseInput s = fmap (parse ((memVals s),[]) box) (testHead s)
 
 -- I thought there'd be a convieniece function for Maybe -> Either...
-testHead :: String -> Either String Int
-testHead s = case readInt s of
+testHead :: InputState -> Either String Int
+testHead s = case readInt (headVal s) of
                Just i -> Right i
                _ -> Left "The Head-Index is Invalid!"
 

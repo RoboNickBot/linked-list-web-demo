@@ -1,6 +1,6 @@
 {-# LANGUAGE CPP, OverloadedStrings #-}
-module Demo.JS ( getInputState
-               , mkBoxes
+module Demo.JS ( readInputState
+               , writeInputState
                , mkCanvas ) where
 
 import Control.Monad
@@ -16,44 +16,57 @@ sDrawButton = select "#buttonSpot"
 sHeadInput = select "#head"
 sCanvasBox = select "#drawingbox"
 sCanvas = select "#theCanvas" -- dont forget to make it!
-sCellNum i = select (pack (template name))
-  where name = "#hey" ++ (show i)
-        template n = "<div class=\"outer\"><div class=\"inner\">" 
+sCellNum i = select (pack (template (cellName i)))
+  where template n = "<div class=\"outer\"><div class=\"inner\">" 
                      ++ (show i) 
                      ++ "</div><input id=\"" 
                      ++ n 
                      ++ "\" type=\"text\" name=\"a\" /></div>"
+        
+cellName :: Int -> String
+cellName i = "#hey" ++ (show i)
 
-getInputState :: Int -> IO InputState
-getInputState n = do h <- getHead
-                     m <- getMemSt n
-                     return (h,m)
+-- returns (the old state, the new state)
+readInputState :: InputState -> IO (InputState, InputState)
+readInputState s = do h <- getHead
+                      m <- getMemSt (startIndex s) (cellCount s)
+                      return (s, s { headVal = h, memVals = m })
 
 getHead :: IO String
 getHead = fmap unpack (getVal =<< sHeadInput)
 
-getMemSt :: Int -> IO MemSt
-getMemSt n = fmap mkMemSt (r 0)
-  where r i = if i < n
-                 then do c <- mkCell i
-                         fmap (c:) (r (i+1))  --liftM (:) (mkCell i) (r (i+1))
+getMemSt :: Int -> Int -> IO MemSt
+getMemSt start size = fmap mkMemSt (r start)
+  where r i = if i < (start + size)
+                 then do c <- readCell i
+                         fmap (c:) (r (i+1))  --liftM (:) (readCell i) (r (i+1))
                  else return []
 
-mkMemSt :: [Cell] -> MemSt
-mkMemSt = foldr (\(i,s) -> M.insert i (i,s)) M.empty
+writeInputState :: InputState -> IO ()
+writeInputState (InSt i s h m) = mkBoxes i s m >> setHead h
 
-mkCell :: Int -> IO Cell
-mkCell i = let name = pack ("#hey" ++ (show i))
-           in fmap ((,) i) . fmap unpack $ (getVal =<< select name)
+setHead :: String -> IO ()
+setHead h = sHeadInput >>= setVal (pack h) >> return ()
 
-mkBoxes :: Int -> IO ()
-mkBoxes size = print "making boxes!" >> clear >> r size size
+readMemSt :: [Cell] -> MemSt
+readMemSt = foldr (\(i,s) -> M.insert i (i,s)) M.empty
+
+readCell :: Int -> IO Cell
+readCell i = let name = pack (cellName i)
+               in fmap ((,) i) . fmap unpack $ (getVal =<< select name)
+
+writeCell :: Int -> String -> IO ()
+writeCell i s = select (pack (cellName i)) >>= setVal (pack s) >> return ()
+
+mkBoxes :: Int -> Int -> MemSt -> IO ()
+mkBoxes start size m = clear >> r (start + size) size
   where r :: Int -> Int -> IO ()
         r n i = if i > 0
                    then do print $ "making box number " ++ (show i) 
                            box <- sCellNum (n - i)
                            parent <- sCellsDiv
                            appendJQuery box parent
+                           writeCell i (stringAtIndex i m)
                            r n (i - 1)
                    else return ()
         clear :: IO ()

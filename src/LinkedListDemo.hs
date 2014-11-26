@@ -14,6 +14,6 @@ main = initializePage
        --n <- buildNetwork
        --actuate n
 
-initializePage = mkBoxes 14 >> mkCanvas
+initializePage = writeInputState (emptyInput 5 20) >> mkCanvas
 
 buildNetwork = undefined

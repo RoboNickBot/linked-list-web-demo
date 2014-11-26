@@ -1,12 +1,16 @@
-module Demo.Types ( InputState
+module Demo.Types ( InputState (..)
+                  , emptyInput
+                  , emptyCell
+                  , stringAtIndex
                   , DType (Box, Arrow, LoopBack)
                   , DElem
                   , Diagram
                   , MemSt
+                  , mkMemSt
                   , Cell
                   ) where
 
-import Data.Map (Map)
+import qualified Data.Map as M (Map, empty, lookup, insert)
 
 {- Here's a map of how these types are used:
 
@@ -17,13 +21,30 @@ import Data.Map (Map)
 
 -- (Cell Index, Cell contents)
 type Cell = (Int, String)
--- Map (Cell Index) Cell
-type MemSt = Map Int Cell
+-- M.Map (Cell Index) Cell
+type MemSt = M.Map Int Cell
+
+mkMemSt :: [Cell] -> MemSt
+mkMemSt = foldr (\(i,s) -> M.insert i (i,s)) M.empty
 
 {- InputState: The current state of all the inputs on the
-               the webpage right now
-   (Head Index Box, Map of values in memory boxes) -}
-type InputState = (String, MemSt)
+               the webpage right now -}
+data InputState = InSt { startIndex :: Int
+                       , cellCount :: Int
+                       , headVal :: String
+                       , memVals :: MemSt
+                       } deriving ( Show, Eq )
+
+emptyInput :: Int -> Int -> InputState
+emptyInput start size = InSt start size "" M.empty
+
+emptyCell :: Int -> Cell
+emptyCell n = (n, "")
+
+stringAtIndex :: Int -> MemSt -> String
+stringAtIndex i m = case M.lookup i m of
+                      Just (_,s) -> s
+                      _ -> ""
 
 data DType = Box | Arrow | LoopBack Int deriving ( Show, Eq )
 type DElem = (DType, String, String)
