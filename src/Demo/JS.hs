@@ -185,12 +185,18 @@ drawElem :: Context -> Double -> (DElem, (Double, Double), (Double, Double)) -> 
 drawElem c scale elem = 
   let ((t,i,v), (x, y), (xo, yo)) = elem
   in case t of
-       Box -> do save c
+       Box -> do save c 
                  strokeRect x (y + (yo / 3)) xo (yo * 2 / 3) c 
-                 (_,f) <- setFont (yo / 12) (xo / 2) i c
-                 fillText (pack i) (x + xo / 2 - (f / 2)) (y + (yo / 3) - (y / 7)) c
-                 (a,b) <- setFont (yo / 3) (xo * 5 / 6) v c
-                 fillText (pack v) (x + (xo / 2) - (a / 2)) (y + yo - (yo / 10)) c
+                 drawTextFloor ( (x + (xo / 2)) 
+                               , (y + (yo / 3) - (yo / 9)))
+                               (xo / 2) 
+                               (yo / 12) 
+                               i c 
+                 drawTextCenter ( (x + (xo / 2)
+                                , (y + (yo * 2 / 3))))
+                                (xo * 4 / 5) 
+                                (yo * 5 / 9) 
+                                v c 
                  restore c
        Arrow -> return ()
        LoopBack _ -> return ()
@@ -198,11 +204,17 @@ drawElem c scale elem =
 cullError = return ()
 printError a = return ()
 
-drawTextCenter :: Coord -> Double -> Double -> String -> Context -> IO ()
+drawTextCenter :: Coord   -- location at which to center the text
+               -> Double  -- maximum width of the text
+               -> Double  -- maximum height of the text
+               -> String  -- the text to be drawn
+               -> Context -- the canvas context
+               -> IO ()
 drawTextCenter (x,y) maxW maxH s c =
   do (a,b) <- setFont maxH maxW s c
      fillText (pack s) (x - (a / 2)) (y + (b / 2)) c
 
+-- same as drawTextCenter, but floors the text at the coordinates
 drawTextFloor :: Coord -> Double -> Double -> String -> Context -> IO ()
 drawTextFloor (x,y) maxW maxH s c =
   do (a,_) <- setFont maxH maxW s c

@@ -15,14 +15,14 @@ import qualified Data.Map as M (empty, lookup)
    for later.
    -}
 
-{- There are two implemented functions for Step:
-   1. arrow: "we're looking for an arrow next"
-   2. box: "we're looking for a box next"
-   -}
 
 randomInput :: Int -> Int -> IO InputState
 randomInput start size = return ((emptyInput start size) {headVal = show (start + 1)})
 
+{- There are two implemented functions for Step:
+   1. arrow: "we're looking for an arrow next"
+   2. box: "we're looking for a box next"
+   -}
 type Step = (MemSt, [Int]) -> Maybe Cell -> [DElem]
 
 parseInput :: InputState -> Either String [DElem]
