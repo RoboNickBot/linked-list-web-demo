@@ -5,6 +5,10 @@ body {
   /* background-color: #DCDCFF; (the blue one) */
 }
 
+.invis {
+    display: none;
+}
+
 div.super {
   padding-top: 20px;
   min-height: 95%;
@@ -141,6 +145,10 @@ div.drawing {
   border-style: solid;
   border-width: thin;
   padding: 0;
+}
+
+#theCanvas {
+    margin: 0;
 }
 
 div.buttons {

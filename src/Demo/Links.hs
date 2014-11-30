@@ -1,5 +1,10 @@
 module Demo.Links ( parseInput
-                  , emptyInput ) where
+                  , randomInput
+                  , getRect
+                  , findScale 
+                  , scaleMap
+                  , nmap
+                  , mkLayout ) where
 
 import Text.Read (readMaybe)
 import Demo.Types
@@ -14,10 +19,14 @@ import qualified Data.Map as M (empty, lookup)
    1. arrow: "we're looking for an arrow next"
    2. box: "we're looking for a box next"
    -}
+
+randomInput :: Int -> Int -> IO InputState
+randomInput start size = return ((emptyInput start size) {headVal = show (start + 1)})
+
 type Step = (MemSt, [Int]) -> Maybe Cell -> [DElem]
 
 parseInput :: InputState -> Either String [DElem]
-parseInput s = fmap (parse ((memVals s),[]) box) (testHead s)
+parseInput a = fmap (parse ((memVals a),[]) box) (testHead a)
 
 -- I thought there'd be a convieniece function for Maybe -> Either...
 testHead :: InputState -> Either String Int
@@ -75,3 +84,43 @@ getIndex = r 0
                           then Just i
                           else r (i+1) a xs
         r _ _ _ = Nothing
+
+mkLayout :: Diagram -> Layout
+mkLayout = flow (0,0)
+
+flow :: (Int, Int) -> [DElem] -> [LElem]
+flow (x,y) (a:as) = bound a (x,y) : flow ((fst (sizeOf a)) + x, y) as
+flow _ _ = []
+
+bound :: DElem -> (Int, Int) -> LElem
+bound elem (x,y) = let (xo, yo) = sizeOf elem
+                   in (elem, (x,y), (xo,yo))
+
+sizeOf :: DElem -> (Int, Int)
+sizeOf (Box,_,_) = (2,3)
+sizeOf (Arrow,_,_) = (2,3)
+sizeOf (LoopBack _,_,_) = (2,4)
+
+getRect :: Layout -> (Int, Int)
+getRect = foldr f (0,0)
+  where f :: LElem -> (Int, Int) -> (Int, Int)
+        f (_, (x,y), (xo,yo)) (a,b) = (max (x+xo) a, max (y+yo) b)
+
+
+findScale :: (Double, Double) -> (Int, Int) -> Double
+findScale (cw,ch) (lw,lh) = let lwd = fromIntegral lw
+                                lhd = fromIntegral lh
+                                cwd = cw - 10
+                                chd = ch - 10
+                            in if (lhd * (cwd / lwd)) > chd
+                                  then chd / lhd
+                                  else cwd / lwd
+
+scaleMap :: Double
+         -> (DElem, (Int, Int), (Int, Int))
+         -> (DElem, (Double, Double), (Double, Double))
+scaleMap scale (e, (x,y), (xo,yo)) = (e, (f x, f y), (f xo, f yo))
+  where f a = scale * (fromIntegral a)
+
+nmap :: (a -> b) -> (a,a) -> (b,b)
+nmap f (x,y) = (f x, f y)

@@ -5,6 +5,9 @@ module Demo.Types ( InputState (..)
                   , DType (Box, Arrow, LoopBack)
                   , DElem
                   , Diagram
+                  , Layout
+                  , LayoutD
+                  , LElem
                   , MemSt
                   , mkMemSt
                   , Cell
@@ -54,14 +57,12 @@ type DElem = (DType, String, String)
             be draw with it (values, indexes, etc.) -}
 type Diagram = [DElem]
 
+
+type LElem = (DElem, (Int, Int), (Int, Int))
+
 {- Layout: A list of objects that will be drawn on-screen with
            their positions and sizes, all in terms of a
            unit-size -}
---type Layout = undefined
+type Layout = [LElem]
 
-{- Drawable: Simply the layout with actual values computed for
-             the positions and sizes. This is handed to a
-             function that will draw them with GHCJS-Canvas -}
---type Drawable = undefined
-
-
+type LayoutD = [(DElem, (Double, Double), (Double, Double))]

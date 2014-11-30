@@ -1,36 +1,83 @@
 {-# LANGUAGE CPP, OverloadedStrings #-}
 module Demo.JS ( readInputState
                , writeInputState
+               , mkRandomInput
+               , sDrawButton
+               , sRandomButton 
+               , drawList
+               , displayOutput
+               , scaleMax
                , mkCanvas ) where
 
 import Control.Monad
+import Control.Applicative
 import JavaScript.JQuery
+import JavaScript.Canvas hiding (Left, Right)
+import GHCJS.Types
+import GHCJS.Foreign
 import Data.Text (pack, unpack, Text)
 import qualified Data.Map as M (empty, insert)
-
+import Data.Maybe (fromJust)
 import Demo.Types
+import Demo.Links
+
+-- Easily Configurable!
+canvasXPadding = 20 :: Double
+canvasYPadding = 20 :: Double
+scaleMax = 120 :: Double
 
 sRandomButton = select "#randomButton"
+sSizeDiv = select "#size"
+sStartDiv = select "#start"
 sCellsDiv = select "#boxbox"
-sDrawButton = select "#buttonSpot"
+sDrawButton = select "#drawButton"
 sHeadInput = select "#head"
 sCanvasBox = select "#drawingbox"
 sCanvas = select "#theCanvas" -- dont forget to make it!
-sCellNum i = select (pack (template (cellName i)))
+sCellNum i = select (pack (template (cellMkName i)))
   where template n = "<div class=\"outer\"><div class=\"inner\">" 
                      ++ (show i) 
                      ++ "</div><input id=\"" 
                      ++ n 
                      ++ "\" type=\"text\" name=\"a\" /></div>"
-        
+
+{- There are two of these because when you are creating elements,
+   you must omit the "#" that you use to later select them.
+   
+   I was using the "#" in the name to both create AND select them
+   before, and was getting a "TypeError" in the firefox console
+   as a result. Almost drove me crazy :/   -}
 cellName :: Int -> String
 cellName i = "#hey" ++ (show i)
+cellMkName :: Int -> String
+cellMkName i = "hey" ++ (show i)
 
--- returns (the old state, the new state)
-readInputState :: InputState -> IO (InputState, InputState)
-readInputState s = do h <- getHead
-                      m <- getMemSt (startIndex s) (cellCount s)
-                      return (s, s { headVal = h, memVals = m })
+printList :: Either String [LElem] -> IO ()
+printList = print . show
+
+showVal sel = fmap (print . unpack) (sel >>= getVal)
+pullVal :: IO JQuery -> IO Int
+pullVal sel = do s <- fmap unpack (sel >>= getVal)
+                 print $ "this pullval: " ++ s
+                 return (read s)
+
+readInputState :: IO InputState
+readInputState = do start <- pullVal sStartDiv
+                    size <- pullVal sSizeDiv
+                    print "readinputstate"
+                    h <- getHead
+                    m <- getMemSt start size 
+                    return (InSt start size h m)
+
+mkRandomInput :: IO InputState
+mkRandomInput = do showVal sStartDiv
+                   showVal sSizeDiv
+                   print "mkrandom"
+                   start <- pullVal sStartDiv
+                   size <- pullVal sSizeDiv
+                   ri <- randomInput start size
+                   writeInputState ri
+                   return ri
 
 getHead :: IO String
 getHead = fmap unpack (getVal =<< sHeadInput)
@@ -53,16 +100,19 @@ readMemSt = foldr (\(i,s) -> M.insert i (i,s)) M.empty
 
 readCell :: Int -> IO Cell
 readCell i = let name = pack (cellName i)
-               in fmap ((,) i) . fmap unpack $ (getVal =<< select name)
+               in fmap (((,) i) . unpack) (print (cellName i) >> (print "ah" >> select name >>= getVal))
 
 writeCell :: Int -> String -> IO ()
 writeCell i s = select (pack (cellName i)) >>= setVal (pack s) >> return ()
 
 mkBoxes :: Int -> Int -> MemSt -> IO ()
-mkBoxes start size m = clear >> r (start + size) size
-  where r :: Int -> Int -> IO ()
+mkBoxes start size m = clear >> note start size >> r (start + size) size
+  where note :: Int -> Int -> IO ()
+        note i s = let f x = (setVal ((pack . show) x))
+                   in sSizeDiv >>= f s >> sStartDiv >>= f i >> return ()          
+        r :: Int -> Int -> IO ()
         r n i = if i > 0
-                   then do print $ "making box number " ++ (show i) 
+                   then do -- print $ "making box number " ++ (show i) 
                            box <- sCellNum (n - i)
                            parent <- sCellsDiv
                            appendJQuery box parent
@@ -87,6 +137,7 @@ mkCanvas :: IO ()
 mkCanvas = do
   (w,h) <- getCanvasDimensions
   p <- sCanvasBox
+  children p >>= remove
   c <- select $ pack $ "<canvas id=\"theCanvas\" width=\""
                        ++ show w
                        ++ "\" height=\""
@@ -94,3 +145,74 @@ mkCanvas = do
                        ++ "\"></canvas>"
   appendJQuery c p
   return ()
+
+displayOutput :: Either String Layout -> IO ()
+displayOutput l = cullError >> case l of
+                                 Left er -> printError er
+                                 Right ls -> drawList ls
+
+withPadding :: (Double, Double) -> (Double, Double)
+withPadding (x,y) = (x - (2 * canvasXPadding), y - (2 * canvasYPadding))
+
+addOffsets :: Double -> (Double, Double) -> Layout -> LayoutD
+addOffsets scale (cx,cy) ls = foldr f [] ls
+  where f (e, (x, y), os) = let sx = scale * (fromIntegral (fst (getRect ls)))
+                                sy = scale * (fromIntegral (snd (getRect ls)))
+                                fx = ((cx - sx) / 2) + canvasXPadding
+                                fy = ((cy - sy) / 2) + canvasYPadding
+                                dx = scale * (fromIntegral x)
+                                dy = scale * (fromIntegral y)
+                            in (:) (e, (dx + fx, dy + fy), nmap ((* scale) . fromIntegral) os)
+
+type Coord = (Double, Double)
+
+drawList :: Layout -> IO ()
+drawList ls = do cints <- getCanvasDimensions
+                 let csize = nmap fromIntegral cints
+                     cdims = withPadding csize
+                     scale = min scaleMax (findScale cdims (getRect ls))
+                     (h,w) = csize
+                 c <- sCanvas >>= indexArray 0 . castRef >>= getContext
+                 save c
+                 clearRect 0 0 h w c 
+                 restore c
+                 let dls = addOffsets scale csize ls
+                     r (l:ls) = (drawElem c scale) l >> r ls
+                     r _ = return ()
+                 r dls
+
+drawElem :: Context -> Double -> (DElem, (Double, Double), (Double, Double)) -> IO ()
+drawElem c scale elem = 
+  let ((t,i,v), (x, y), (xo, yo)) = elem
+  in case t of
+       Box -> do save c
+                 strokeRect x (y + (yo / 3)) xo (yo * 2 / 3) c 
+                 (_,f) <- setFont (yo / 12) (xo / 2) i c
+                 fillText (pack i) (x + xo / 2 - (f / 2)) (y + (yo / 3) - (y / 7)) c
+                 (a,b) <- setFont (yo / 3) (xo * 5 / 6) v c
+                 fillText (pack v) (x + (xo / 2) - (a / 2)) (y + yo - (yo / 10)) c
+                 restore c
+       Arrow -> return ()
+       LoopBack _ -> return ()
+
+cullError = return ()
+printError a = return ()
+
+drawTextCenter :: Coord -> Double -> Double -> String -> Context -> IO ()
+drawTextCenter (x,y) maxW maxH s c =
+  do (a,b) <- setFont maxH maxW s c
+     fillText (pack s) (x - (a / 2)) (y + (b / 2)) c
+
+drawTextFloor :: Coord -> Double -> Double -> String -> Context -> IO ()
+drawTextFloor (x,y) maxW maxH s c =
+  do (a,_) <- setFont maxH maxW s c
+     fillText (pack s) (x - (a / 2)) y c
+
+setFont :: Double -> Double -> String -> Context -> IO (Double, Double)
+setFont maxHeight maxWidth s c = try maxWidth maxHeight s c
+
+try d f s c = do font (pack ((show ((floor f)::Int)) ++ "pt Calibri")) c
+                 x <- measureText (pack s) c
+                 if x > d
+                    then try d (f - 20) s c
+                    else print (show (floor f)) >> return (x,f)
