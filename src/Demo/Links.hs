@@ -7,17 +7,70 @@ module Demo.Links ( parseInput
                   , mkLayout ) where
 
 import Text.Read (readMaybe)
+import System.Random
 import Demo.Types
 import qualified Data.Map as M (empty, lookup)
+import qualified Data.List as L (delete, length)
+
+-- Config!
+randomEmptyCells = 5 :: Int
+randomValueRange = (1,9)
 
 {- I think there is a lot of refactoring-opportunity in here,
    especially concerning the use of monads, but we'll leave that
    for later.
    -}
 
+type CellPair = (Int, Int)
 
 randomInput :: Int -> Int -> IO InputState
-randomInput start size = return ((emptyInput start size) {headVal = show (start + 1)})
+randomInput start size = 
+  do let values = take size [start..]
+         pairs (v:a:cs) = (v,a) : pairs cs
+         pairs _ = [] 
+     gen <- newStdGen
+     let fvs = foldr L.delete values (getEmpty randomEmptyCells gen values)
+         (headV,mem) = mkMem start size (shuffle (pairs  fvs) gen)
+                             (randomRs randomValueRange gen)
+     return ( InSt start size headV mem)
+
+shuffle :: RandomGen g => [a] -> g -> [a]
+shuffle as _ = as -- TODO
+
+mkMem :: Int -> Int -> [CellPair] -> [Int] -> (String, MemSt)
+mkMem i s cs vals = 
+  let h = show (fst (head cs))
+      r ((v,a) : (v2,a2) : xs) (k:ks) = (v,[k]) : (a,show v2) : r ((v2,a2):xs) ks
+      r ((v,a) : []) (k:ks) = (v,[k]) : (a,show (i + s + 4)) : []
+      --r _ _ = []
+  in (h, mkMemSt (r cs (fmap (head . show) vals)))
+
+getEmpty n g xs = 
+  if n > 0
+     then let (a,ng) = pickR (emptyChoices xs) g
+              zs = breakLs a xs
+          in a : getEmpty (n - 1) ng zs
+     else []
+
+emptyChoices (x:y:xs) = x : emptyChoices xs
+emptyChoices _ = []
+
+breakLs a (x:xs) = if a == x
+                      then xs
+                      else breakLs a xs
+
+pickR xs g = (head xs, g)
+{-
+pickR :: RandomGen g => [a] -> g -> (a, g)
+pickR xs g = let r _ (x:[]) = x
+                 r i (x:xs) = if i > 0
+                                 then r (i - 1) xs
+                                 else x
+                 (i, g2) = randomR (0, (L.length xs) - 1) g
+             in (r i xs, g2)
+-}
+
+
 
 {- There are two implemented functions for Step:
    1. arrow: "we're looking for an arrow next"

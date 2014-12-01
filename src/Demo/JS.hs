@@ -72,9 +72,10 @@ readInputState = do start <- pullVal sStartDiv
 mkRandomInput :: IO InputState
 mkRandomInput = do showVal sStartDiv
                    showVal sSizeDiv
-                   print "mkrandom"
+                   
                    start <- pullVal sStartDiv
                    size <- pullVal sSizeDiv
+                   print (pack ("mkrandom " ++ (show start) ++ ":" ++ (show size)))
                    ri <- randomInput start size
                    writeInputState ri
                    return ri
@@ -186,11 +187,12 @@ drawElem c scale elem =
   let ((t,i,v), (x, y), (xo, yo)) = elem
   in case t of
        Box -> do save c 
+                 lineWidth 5 c
                  strokeRect x (y + (yo / 3)) xo (yo * 2 / 3) c 
                  drawTextFloor ( (x + (xo / 2)) 
                                , (y + (yo / 3) - (yo / 9)))
                                (xo / 2) 
-                               (yo / 12) 
+                               (yo / 7) 
                                i c 
                  drawTextCenter ( (x + (xo / 2)
                                 , (y + (yo * 2 / 3))))
@@ -198,7 +200,12 @@ drawElem c scale elem =
                                 (yo * 5 / 9) 
                                 v c 
                  restore c
-       Arrow -> return ()
+       Arrow -> do save c
+                   lineWidth 12 c
+                   moveTo (x + (x / 12)) (y + (y / 2)) c
+                   lineTo (x + (x * 11 / 12)) (y + (y / 2)) c
+                   --stroke c
+                   restore c
        LoopBack _ -> return ()
 
 cullError = return ()

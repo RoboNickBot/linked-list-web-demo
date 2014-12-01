@@ -19,6 +19,6 @@ executable web-demos
   main-is:             LinkedListDemo.hs
   other-modules:       Demo.Links, Demo.JS, Demo.Types
   -- other-extensions:    
-  build-depends:       base >=4.7 && <4.8, data-default, text, ghcjs-canvas, ghcjs-jquery, ghcjs-base, reactive-banana, containers
+  build-depends:       base >=4.7 && <4.8, data-default, text, ghcjs-canvas, ghcjs-jquery, ghcjs-base, reactive-banana, containers, random
   hs-source-dirs:      src
   default-language:    Haskell2010

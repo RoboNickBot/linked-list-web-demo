@@ -17,7 +17,7 @@ main = do initializePage
           n <- compile (mkNetwork ss)
           actuate n
 
-initializePage = writeInputState (emptyInput 5 20) >> mkCanvas
+initializePage = writeInputState (emptyInput 0 30) >> mkCanvas
 
 wireButton (addHandler, fire) button f = do 
   let handler _ = f >>= fire
