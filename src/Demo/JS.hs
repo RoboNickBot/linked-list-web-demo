@@ -27,7 +27,7 @@ import Demo.Links
 -- Easily Configurable!
 canvasXPadding = 20 :: Double
 canvasYPadding = 20 :: Double
-scaleMax = 120 :: Double
+scaleMax = 100 :: Double
 
 sNumCells = select "#numcells"
 sStartHead = select "#starthead"

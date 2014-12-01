@@ -97,7 +97,9 @@ parse st step i = let m = fst st
                   in step (saw i st) cell
 
 box :: Step
-box st (Just (i,val)) = (Box, (show i), val) : parse st arrow (i+1)
+box st (Just (i,val)) = if val == "" -- No empty boxes!
+                           then []
+                           else (Box, (show i), val) : parse st arrow (i+1)
 box _ _ = []
 
 {- Failure for arrow: (end list)
