@@ -25,8 +25,8 @@ import Demo.Types
 import Demo.Links
 
 -- Easily Configurable!
-canvasXPadding = 20 :: Double
-canvasYPadding = 20 :: Double
+canvasXPadding = 1 :: Double
+canvasYPadding = 1 :: Double
 scaleMax = 100 :: Double
 
 sNumCells = select "#numcells"
@@ -212,9 +212,9 @@ drawElem c scale elem =
                                (yo / 7) 
                                i c 
                  drawTextCenter ( (x + (xo / 2)
-                                , (y + (yo * 2 / 3))))
+                                , (y + (yo * 8 / 12))))
                                 (xo * 4 / 5) 
-                                (yo * 5 / 9) 
+                                (yo * 7 / 18) 
                                 v c 
                  restore c
        Arrow -> do save c
