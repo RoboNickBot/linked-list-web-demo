@@ -152,7 +152,7 @@ bound elem (x,y) = let (xo, yo) = sizeOf elem
 sizeOf :: DElem -> (Int, Int)
 sizeOf (Box,_,_) = (2,3)
 sizeOf (Arrow,_,_) = (2,3)
-sizeOf (LoopBack _,_,_) = (2,4)
+sizeOf (LoopBack _,_,_) = (2,5)
 
 getRect :: Layout -> (Int, Int)
 getRect = foldr f (0,0)

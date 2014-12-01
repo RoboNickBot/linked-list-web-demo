@@ -227,7 +227,37 @@ drawElem c scale elem =
                                  i c
 
                    restore c
-       LoopBack _ -> return ()
+       LoopBack z -> do let zd = (fromIntegral z) :: Double
+                        save c
+                        
+                        lineWidth 8 c
+                        beginPath c
+                        let yu = (yo / 10)
+                            horiz = (y + 4 * yu)
+                        moveTo (x + (xo * 2 / 12)) horiz c
+                        lineTo (x + (xo / 2)) horiz c
+                        lineTo (x + (xo / 2)) (horiz + 5 * yu) c
+                        let tarX = ((x + (xo / 2)) - (zd * xo))
+                        lineTo tarX (horiz + 5 * yu) c
+                        lineTo tarX (horiz + 4 * yu) c
+                        stroke c
+                        
+                        lineWidth 2 c
+                        beginPath c
+                        moveTo (tarX - (xo * 1.5 / 12)) (horiz + 4 * yu) c
+                        lineTo tarX (horiz + (3 * yu)) c
+                        lineTo (tarX + (xo * 1.5 / 12)) (horiz + 4 * yu) c
+                        closePath c
+                        stroke c
+                        fill c
+                        
+                        drawTextFloor ( (x + (xo / 2))
+                                      , (y + (yu * 10 * (3 / 5) * 9.5 / 18)))
+                                      (xo / 2)
+                                      (yu * 8 / (7 * (4/3)))
+                                      i c
+                        
+                        restore c
 
 cullError = return ()
 printError a = return ()
