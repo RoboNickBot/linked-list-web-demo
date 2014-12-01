@@ -201,10 +201,31 @@ drawElem c scale elem =
                                 v c 
                  restore c
        Arrow -> do save c
-                   lineWidth 12 c
-                   moveTo (x + (x / 12)) (y + (y / 2)) c
-                   lineTo (x + (x * 11 / 12)) (y + (y / 2)) c
-                   --stroke c
+                   
+                   let endX = (x + (xo * 10 / 12))
+                       endY = (y + (yo * 12 / 18))
+
+                   lineWidth 8 c
+                   beginPath c
+                   moveTo (x + (xo * 2 / 12)) endY c
+                   lineTo (endX - (xo * 2 / 12)) endY c
+                   stroke c 
+                   
+                   lineWidth 2 c
+                   beginPath c
+                   moveTo (x + (xo * 8 / 12)) (y + (yo * 13.5 / 18)) c 
+                   lineTo (endX + (xo * 0.5 / 12)) endY c
+                   lineTo (x + (xo * 8 / 12)) (y + (yo * 10.5 / 18)) c
+                   closePath c
+                   stroke c
+                   fill c 
+                   
+                   drawTextFloor ( (x + (xo / 2))
+                                 , (y + (yo * 9.5 / 18)))
+                                 (xo / 2)
+                                 (yo / 7)
+                                 i c
+
                    restore c
        LoopBack _ -> return ()
 
