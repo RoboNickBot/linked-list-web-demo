@@ -14,7 +14,7 @@ import qualified Data.List as L (delete, length)
 
 -- Config!
 randomEmptyCells = 2 :: Int
-randomValueRange = (1,9)
+randomValueRange = ('A','Z')
 
 {- I think there is a lot of refactoring-opportunity in here,
    especially concerning the use of monads, but we'll leave that
@@ -37,13 +37,13 @@ randomInput start size =
 shuffle :: RandomGen g => [a] -> g -> [a]
 shuffle as _ = as -- TODO
 
-mkMem :: Int -> Int -> [CellPair] -> [Int] -> (String, MemSt)
+mkMem :: Int -> Int -> [CellPair] -> [Char] -> (String, MemSt)
 mkMem i s cs vals = 
   let h = show (fst (head cs))
-      r ((v,a) : (v2,a2) : xs) (k:ks) = (v,[k]) : (a,show v2) : r ((v2,a2):xs) ks
-      r ((v,a) : []) (k:ks) = (v,[k]) : (a,show (i + s + 4)) : []
+      r ((v,a) : (v2,a2) : xs) (k:ks) = (v,k) : (a,show v2) : r ((v2,a2):xs) ks
+      r ((v,a) : []) (k:ks) = (v,k) : (a,show (i + s + 4)) : []
       --r _ _ = []
-  in (h, mkMemSt (r cs (fmap (head . show) vals)))
+  in (h, mkMemSt (r cs (fmap (: []) vals)))
 
 getEmpty n g xs = 
   if n > 0
