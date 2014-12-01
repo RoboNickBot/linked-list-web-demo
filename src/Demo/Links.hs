@@ -13,7 +13,7 @@ import qualified Data.Map as M (empty, lookup)
 import qualified Data.List as L (delete, length)
 
 -- Config!
-randomEmptyCells = 5 :: Int
+randomEmptyCells = 2 :: Int
 randomValueRange = (1,9)
 
 {- I think there is a lot of refactoring-opportunity in here,

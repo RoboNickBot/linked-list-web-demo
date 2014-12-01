@@ -5,8 +5,11 @@ module Demo.JS ( readInputState
                , sDrawButton
                , sRandomButton 
                , drawList
+               , placeValues
                , displayOutput
                , scaleMax
+               , sCellGen
+               , getGenInfo
                , mkCanvas ) where
 
 import Control.Monad
@@ -26,6 +29,9 @@ canvasXPadding = 20 :: Double
 canvasYPadding = 20 :: Double
 scaleMax = 120 :: Double
 
+sNumCells = select "#numcells"
+sStartHead = select "#starthead"
+sCellGen = select "#generatenew"
 sRandomButton = select "#randomButton"
 sSizeDiv = select "#size"
 sStartDiv = select "#start"
@@ -40,6 +46,17 @@ sCellNum i = select (pack (template (cellMkName i)))
                      ++ "</div><input id=\"" 
                      ++ n 
                      ++ "\" type=\"text\" name=\"a\" /></div>"
+
+getGenInfo :: IO (String, String)
+getGenInfo = do start <- fmap unpack (sStartHead >>= getVal)
+                size <- fmap unpack (sNumCells >>= getVal)
+                return (start, size)
+
+placeValues :: Int -> Int -> IO ()
+placeValues start size = 
+  let f = (pack . show)
+      s val jq = jq >>= setVal (f val)
+  in s start sStartHead >> s size sNumCells >> return ()
 
 {- There are two of these because when you are creating elements,
    you must omit the "#" that you use to later select them.

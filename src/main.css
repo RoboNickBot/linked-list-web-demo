@@ -50,7 +50,7 @@ div.box {
 div.outer {
   /*border-style: solid; */
   margin: 0px;
-  width: 30px;
+  width: 34px;
   display: inline-block;
   /*float: left;*/
 }
@@ -164,7 +164,8 @@ div.upper-controls ul {
 }
 
 div.upper-controls li {
-  display: inline;
+    display: inline;
+    margin-right : 0.5em;
 }
 
 div.upper-controls button {

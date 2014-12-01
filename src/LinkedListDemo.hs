@@ -9,27 +9,42 @@ import Demo.Types
 import Demo.Links
 import Demo.JS
 
+defaultHeadIndex = 0
+defaultNumCells = 10
 
-main = do initializePage
-          ss <- mkSources
-          wireButton (fst ss) sDrawButton readInputState
-          wireButton (snd ss) sRandomButton mkRandomInput
-          n <- compile (mkNetwork ss)
+main = do initializePage (defaultHeadIndex, defaultNumCells)
+          (draw, rando, gener) <- mkSources
+          wireButton draw sDrawButton readInputState
+          wireButton rando sRandomButton mkRandomInput
+          wireButton gener sCellGen generateCells
+          n <- compile (mkNetwork (draw, rando, gener))
           actuate n
 
-initializePage = writeInputState (emptyInput 0 30) >> mkCanvas
+generateCells :: IO ()
+generateCells = do (start,size) <- getGenInfo
+                   initializePage (read start, read size)
+
+initializePage (start,size) = 
+  placeValues start size
+  >> writeInputState (emptyInput start size) 
+  >> mkCanvas
+
+
 
 wireButton (addHandler, fire) button f = do 
   let handler _ = f >>= fire
   b <- button
   click handler def b
 
-mkSources = (,) <$> newAddHandler <*> newAddHandler
+mkSources = do a <- newAddHandler
+               b <- newAddHandler
+               c <- newAddHandler
+               return (a,b,c)
 
 addHandler = fst
 fire = snd
 
-mkNetwork (drawSource, randomSource) = do 
+mkNetwork (drawSource, randomSource, genSource) = do 
   eDraws <- fromAddHandler (addHandler drawSource)
   eRandoms <- fromAddHandler (addHandler randomSource)
   let eInputs = eDraws `union` eRandoms
