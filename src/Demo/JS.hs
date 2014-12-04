@@ -204,7 +204,8 @@ drawElem c scale elem =
   let ((t,i,v), (x, y), (xo, yo)) = elem
   in case t of
        Box -> do save c 
-                 lineWidth 5 c
+                 print ("The scale is: " ++ (show scale))
+                 lineWidth 5 c --(ceiling (scale / 100)) c
                  strokeRect x (y + (yo / 3)) xo (yo * 2 / 3) c 
                  drawTextFloor ( (x + (xo / 2)) 
                                , (y + (yo / 3) - (yo / 9)))

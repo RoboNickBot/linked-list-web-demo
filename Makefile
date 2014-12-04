@@ -1,12 +1,31 @@
-BIN= linked-list-web-demo
+BIN= linked-list-dist
+GHCJS= dist
+PROJECT= linked-list-web-demo
+INDEX= linked_list.html
+SERVER= akira
+STAGE= :
+SETUP= "tar -xzf $(BIN).tgz && cp -vr $(BIN)/* /srv/www/demos/"
+BROWSER= firefox
 
+all: build
 
+test: build
+	echo $(SETUP)
+	$(BROWSER) $(BIN)/$(INDEX)
 
-package: bin ghcjs static
-	tar -czf $(BIN).tar $(BIN)
+deploy: package
+	scp $(BIN).tgz $(SERVER)$(STAGE)
+	ssh $(SERVER) $(SETUP)
+
+package: build
+	tar -czf $(BIN).tgz $(BIN)
+
+build: ghcjs static
 
 ghcjs: bin
-	cabal install --ghcjs --bindir=$(BIN)
+	cabal configure --ghcjs
+	cabal build
+	cp -r $(GHCJS)/build/$(PROJECT)/*.jsexe $(BIN)
 
 static: bin
 	cp static/*.html $(BIN); exit 0;
@@ -17,10 +36,6 @@ bin: clean
 	mkdir $(BIN)
 
 clean:
-	rm $(BIN).tar; exit 0;
+	rm $(BIN).tgz; exit 0;
 	rm -r $(BIN); exit 0;
-	rm -r dist; exit 0;
-
-install:
-	scp pages.tgz akira:/www/
-	ssh akira "cd /www/ && tar -xvzf pages.tgz && cp build/src/* ./ && rm -rf build && rm pages.tgz"
+	rm -r $(GHCJS); exit 0;
