@@ -300,8 +300,13 @@ drawTextFloor (x,y) maxW maxH s c =
 setFont :: Double -> Double -> String -> Context -> IO (Double, Double)
 setFont maxHeight maxWidth s c = try maxWidth maxHeight s c
 
+fontPrecision = 20 -- size of steps taken when choosing a font
+panicSize = 1 -- size to choose if algorithm bottoms out
 try d f s c = do font (pack ((show ((floor f)::Int)) ++ "pt Calibri")) c
                  x <- measureText (pack s) c
                  if x > d
-                    then try d (f - 20) s c
+                    then if x > 0
+                            then try d (f - fontPrecision) s c 
+                            else print ("hit bottom..") 
+                                 >> return (panicSize,f)
                     else print (show (floor f)) >> return (x,f)
