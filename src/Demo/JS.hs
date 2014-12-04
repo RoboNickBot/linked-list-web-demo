@@ -205,7 +205,8 @@ drawElem c scale elem =
   in case t of
        Box -> do save c 
                  print ("The scale is: " ++ (show scale))
-                 lineWidth 5 c --(ceiling (scale / 100)) c
+                 -- the following magic numbers were experimentally chosen...
+                 lineWidth (scale * 5 / 64) c
                  strokeRect x (y + (yo / 3)) xo (yo * 2 / 3) c 
                  drawTextFloor ( (x + (xo / 2)) 
                                , (y + (yo / 3) - (yo / 9)))
@@ -223,13 +224,13 @@ drawElem c scale elem =
                    let endX = (x + (xo * 10 / 12))
                        endY = (y + (yo * 12 / 18))
 
-                   lineWidth 8 c
+                   lineWidth (scale * 8 / 64) c
                    beginPath c
                    moveTo (x + (xo * 2 / 12)) endY c
                    lineTo (endX - (xo * 2 / 12)) endY c
                    stroke c 
                    
-                   lineWidth 2 c
+                   lineWidth (scale * 2 / 64) c
                    beginPath c
                    moveTo (x + (xo * 8 / 12)) (y + (yo * 13.5 / 18)) c 
                    lineTo (endX + (xo * 0.5 / 12)) endY c
@@ -248,7 +249,7 @@ drawElem c scale elem =
        LoopBack z -> do let zd = (fromIntegral z) :: Double
                         save c
                         
-                        lineWidth 8 c
+                        lineWidth (scale * 8 / 64) c
                         beginPath c
                         let yu = (yo / 10)
                             horiz = (y + 4 * yu)
@@ -260,7 +261,7 @@ drawElem c scale elem =
                         lineTo tarX (horiz + 4 * yu) c
                         stroke c
                         
-                        lineWidth 2 c
+                        lineWidth (scale * 2 / 64) c
                         beginPath c
                         moveTo (tarX - (xo * 1.5 / 12)) (horiz + 4 * yu) c
                         lineTo tarX (horiz + (3 * yu)) c
