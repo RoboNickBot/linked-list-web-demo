@@ -94,11 +94,12 @@ parse :: ( MemSt -- The contents of the onscreen memory cells
       -> [DElem] -- the list of diagram elements we're after
 parse st step i = let m = fst st
                       cell = M.lookup i m
-                  in step (saw i st) cell
+                  in step st cell
 
 box :: Step
 box st (Just (i,val)) = 
-  let continue = (Box, (show i), val) : parse st arrow (i + 1)
+  let newst = saw i st -- add box's index to the "seen" list
+      continue = (Box, (show i), val) : parse newst arrow (i + 1)
   in if val == "" -- if empty, we must check to see if next-addr is empty
         then case M.lookup (i + 1) (fst st) of
                -- if it is empty, we don't draw the box

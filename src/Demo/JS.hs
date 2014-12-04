@@ -256,7 +256,11 @@ drawElem c scale elem =
                         moveTo (x + (xo * 2 / 12)) horiz c
                         lineTo (x + (xo / 2)) horiz c
                         lineTo (x + (xo / 2)) (horiz + 5 * yu) c
-                        let tarX = ((x + (xo / 2)) - (zd * xo))
+                        
+                        -- Here, we move back one width and then jump
+                        -- two widths at a time (arrow + box)
+                        let tarX = ((x + (xo / 2)) - xo - (zd * 2 * xo))
+                        
                         lineTo tarX (horiz + 5 * yu) c
                         lineTo tarX (horiz + 4 * yu) c
                         stroke c
@@ -300,7 +304,7 @@ drawTextFloor (x,y) maxW maxH s c =
 setFont :: Double -> Double -> String -> Context -> IO (Double, Double)
 setFont maxHeight maxWidth s c = try maxWidth maxHeight s c
 
-fontPrecision = 20 -- size of steps taken when choosing a font
+fontPrecision = 6 -- size of steps taken when choosing a font
 panicSize = 1 -- size to choose if algorithm bottoms out
 try d f s c = do font (pack ((show ((floor f)::Int)) ++ "pt Calibri")) c
                  x <- measureText (pack s) c
