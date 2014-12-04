@@ -125,18 +125,18 @@ writeCell :: Int -> String -> IO ()
 writeCell i s = select (pack (cellName i)) >>= setVal (pack s) >> return ()
 
 mkBoxes :: Int -> Int -> MemSt -> IO ()
-mkBoxes start size m = clear >> note start size >> r (start + size) size
+mkBoxes start size m = clear >> note start size >> r start 0
   where note :: Int -> Int -> IO ()
         note i s = let f x = (setVal ((pack . show) x))
                    in sSizeDiv >>= f s >> sStartDiv >>= f i >> return ()          
         r :: Int -> Int -> IO ()
-        r n i = if i > 0
-                   then do -- print $ "making box number " ++ (show i) 
-                           box <- sCellNum (n - i)
+        r s i = if i < size
+                   then do print $ "making box number " ++ (show (s + i)) 
+                           box <- sCellNum (s + i)
                            parent <- sCellsDiv
                            appendJQuery box parent
-                           writeCell i (stringAtIndex i m)
-                           r n (i - 1)
+                           writeCell (s + i) (stringAtIndex (s + i) m)
+                           r s (i + 1)
                    else return ()
         clear :: IO ()
         clear = sCellsDiv >>= children >>= remove >> return ()
