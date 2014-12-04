@@ -97,9 +97,15 @@ parse st step i = let m = fst st
                   in step (saw i st) cell
 
 box :: Step
-box st (Just (i,val)) = if val == "" -- No empty boxes!
-                           then []
-                           else (Box, (show i), val) : parse st arrow (i+1)
+box st (Just (i,val)) = 
+  let continue = (Box, (show i), val) : parse st arrow (i + 1)
+  in if val == "" -- if empty, we must check to see if next-addr is empty
+        then case M.lookup (i + 1) (fst st) of
+               -- if it is empty, we don't draw the box
+               Nothing -> []
+               Just (_,"") -> []
+               _ -> continue 
+        else continue
 box _ _ = []
 
 {- Failure for arrow: (end list)
