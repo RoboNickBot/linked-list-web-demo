@@ -1,5 +1,4 @@
 module Demo.Links ( parseInput
-                  , randomInput
                   , getRect
                   , findScale 
                   , scaleMap
@@ -20,7 +19,8 @@ randomValueRange = ('A','Z')
    especially concerning the use of monads, but we'll leave that
    for later.
    -}
-
+{-
+        
 type CellPair = (Int, Int)
 
 randomInput :: Int -> Int -> IO InputState
@@ -37,13 +37,6 @@ randomInput start size =
 shuffle :: RandomGen g => [a] -> g -> [a]
 shuffle as _ = as -- TODO
 
-mkMem :: Int -> Int -> [CellPair] -> [Char] -> (String, MemSt)
-mkMem i s cs vals = 
-  let h = show (fst (head cs))
-      r ((v,a) : (v2,a2) : xs) (k:ks) = (v,k) : (a,show v2) : r ((v2,a2):xs) ks
-      r ((v,a) : []) (k:ks) = (v,k) : (a,show (i + s + 4)) : []
-      --r _ _ = []
-  in (h, mkMemSt (r cs (fmap (: []) vals)))
 
 getEmpty n g xs = 
   if n > 0
@@ -60,16 +53,8 @@ breakLs a (x:xs) = if a == x
                       else breakLs a xs
 
 pickR xs g = (head xs, g)
-{-
-pickR :: RandomGen g => [a] -> g -> (a, g)
-pickR xs g = let r _ (x:[]) = x
-                 r i (x:xs) = if i > 0
-                                 then r (i - 1) xs
-                                 else x
-                 (i, g2) = randomR (0, (L.length xs) - 1) g
-             in (r i xs, g2)
+        
 -}
-
 
 
 {- There are two implemented functions for Step:

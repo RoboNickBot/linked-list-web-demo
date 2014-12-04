@@ -23,6 +23,7 @@ import qualified Data.Map as M (empty, insert)
 import Data.Maybe (fromJust)
 import Demo.Types
 import Demo.Links
+import Demo.Random
 
 -- Easily Configurable!
 canvasXPadding = 1 :: Double

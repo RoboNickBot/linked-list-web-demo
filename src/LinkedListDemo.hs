@@ -5,6 +5,7 @@ import Reactive.Banana.Frameworks
 import Data.Default (def)
 import JavaScript.JQuery hiding (Event)
 
+import Demo.Random
 import Demo.Types
 import Demo.Links
 import Demo.JS
