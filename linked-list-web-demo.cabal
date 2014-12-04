@@ -1,0 +1,24 @@
+name:                linked-list-web-demo
+version:             0.1.0.0
+synopsis:            An interactive web-page app that demonstrates Linked Lists
+license:             BSD2
+license-file:        LICENSE
+author:              RoboNickBot
+maintainer:          nicklewchenko92@gmail.com
+category:            Web
+build-type:          Simple
+cabal-version:       >=1.10
+
+executable linked-list-web-demo
+  main-is:             LinkedListDemo.hs
+  other-modules:       Demo.Links, Demo.JS, Demo.Types
+  other-extensions:    CPP, OverloadedStrings, ForeignFunctionInterface
+  build-depends:       base >=4.7 && <4.8, data-default, text,
+                       ghcjs-canvas,
+                       ghcjs-jquery,
+                       ghcjs-base,
+                       reactive-banana,
+                       containers,
+                       random
+  hs-source-dirs:      src
+  default-language:    Haskell2010
