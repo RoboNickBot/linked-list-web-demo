@@ -9,7 +9,8 @@ import qualified Data.List as L
 
 -- Config!
 randomEmptyCells :: Int -> Int
-randomEmptyCells numCells = numCells `div` 10
+randomEmptyCells numCells = let a = (numCells `div` 10) 
+                            in a + ((numCells - a) `mod` 2)
 randomValueRange = ('A', 'Z')
 
 infiniR :: R.RandomGen g => g -> [Char]
@@ -62,7 +63,7 @@ mkPairs :: [a] -> [(a,a)]
 mkPairs (a:b:cs) = (a,b) : mkPairs cs
 mkPairs _ = []
 
-endAddressString = "/"
+endAddressString = "_"
 
 mkMem :: Int -> Int -> [Char] -> [Pair] -> (String, MemSt)
 mkMem start size rvals pairs = 

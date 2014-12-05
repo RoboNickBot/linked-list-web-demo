@@ -19,43 +19,6 @@ randomValueRange = ('A','Z')
    especially concerning the use of monads, but we'll leave that
    for later.
    -}
-{-
-        
-type CellPair = (Int, Int)
-
-randomInput :: Int -> Int -> IO InputState
-randomInput start size = 
-  do let values = take size [start..]
-         pairs (v:a:cs) = (v,a) : pairs cs
-         pairs _ = [] 
-     gen <- newStdGen
-     let fvs = foldr L.delete values (getEmpty randomEmptyCells gen values)
-         (headV,mem) = mkMem start size (shuffle (pairs  fvs) gen)
-                             (randomRs randomValueRange gen)
-     return ( InSt start size headV mem)
-
-shuffle :: RandomGen g => [a] -> g -> [a]
-shuffle as _ = as -- TODO
-
-
-getEmpty n g xs = 
-  if n > 0
-     then let (a,ng) = pickR (emptyChoices xs) g
-              zs = breakLs a xs
-          in a : getEmpty (n - 1) ng zs
-     else []
-
-emptyChoices (x:y:xs) = x : emptyChoices xs
-emptyChoices _ = []
-
-breakLs a (x:xs) = if a == x
-                      then xs
-                      else breakLs a xs
-
-pickR xs g = (head xs, g)
-        
--}
-
 
 {- There are two implemented functions for Step:
    1. arrow: "we're looking for an arrow next"
