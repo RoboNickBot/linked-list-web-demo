@@ -63,7 +63,7 @@ mkPairs :: [a] -> [(a,a)]
 mkPairs (a:b:cs) = (a,b) : mkPairs cs
 mkPairs _ = []
 
-endAddressString = "_"
+endAddressString = "-1"
 
 mkMem :: Int -> Int -> [Char] -> [Pair] -> (String, MemSt)
 mkMem start size rvals pairs = 

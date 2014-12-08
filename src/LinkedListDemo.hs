@@ -10,8 +10,8 @@ import Demo.Types
 import Demo.Links
 import Demo.JS
 
-defaultHeadIndex = 0
-defaultNumCells = 10
+defaultHeadIndex = 23
+defaultNumCells = 14
 
 main = do initializePage (defaultHeadIndex, defaultNumCells)
           (draw, rando, gener) <- mkSources
