@@ -15,17 +15,19 @@ defaultNumCells = 14
 
 main = do initializePage (defaultHeadIndex, defaultNumCells)
           (draw, rando, gener, clicks, keys) <- mkSources
-          wireButton draw sDrawButton (cullErrors >> readInputState)
+          
+          wireButton draw sDrawButton (cullErrors
+                                       >> readInputState)
           wireButton rando sRandomButton (cullErrors 
                                           >> mkCanvas
-                                          >>mkRandomInput
+                                          >> mkRandomInput
                                           >> readInputState)
-          wireButton 
-            gener 
-            sCellGen 
-            (cullErrors >> generateCells >> readInputState)
+          wireButton gener sCellGen (cullErrors 
+                                     >> generateCells
+                                     >> readInputState)
           wireClicks clicks
           wireKeys keys readInputState
+          
           n <- compile (mkNetwork (draw, rando, gener, clicks, keys))
           actuate n
 
@@ -67,31 +69,47 @@ mkSources = do a <- newAddHandler
 addHandler = fst
 fire = snd
 
-mkNetwork (drawSource, randomSource, genSource, clickSource, keySource) = do 
+mkNetwork ( drawSource
+          , randomSource
+          , genSource
+          , clickSource
+          , keySource ) = do 
+
   eDraws <- fromAddHandler (addHandler drawSource)
   eRandoms <- fromAddHandler (addHandler randomSource)
   eGens <- fromAddHandler (addHandler genSource)
   eKeys <- fromAddHandler (addHandler keySource)
-  let eResets = eRandoms `union` eGens
+  
+  let -- some useful collections of event-sources
+      eResets = eRandoms `union` eGens
       eInputs = eRandoms `union` eGens `union` eKeys
-      --bInputState :: Behavior t InputState 
-      bInputState = stepper (emptyInput 5 20) eInputs
-      eDrawnInputState = bInputState <@ eDraws
-      bLastInputState = stepper (emptyInput 5 20)
-                                (eDrawnInputState `union` eResets)
+      
+      -- convenience for processing LastInputStates
+      bNothing :: Behavior t (Maybe InputState)
+      bNothing = pure Nothing
+      -- clicking 'draw' should only count if it actually draws
+      bTest :: Behavior t (InputState -> Maybe InputState)
+      bTest = pure (\inst -> case parseInput inst of
+                               Left _ -> Nothing
+                               Right _ -> Just inst)
+
+      bInputState = stepper (emptyInput 5 20) eInputs 
+      bLastInputState = 
+        stepper Nothing
+                ((bTest <@> eDraws) `union` (bNothing <@ eResets))
       bDirty = mismatches <$> bInputState <*> bLastInputState
+  
   cIn <- changes bInputState
   cLIn <- changes bLastInputState
   cDirty <- changes bDirty
 
-
-  --reactimate' $ fmap (\is -> process is) eISChanged
-  --reactimate' <$> (fmap (fmap process) eISChanged)
   reactimate (fmap (\a -> mkCanvas >> process a) eDraws)
-  reactimate' $ fmap (\d -> mark d >> print (show d) >> return ()) <$> cDirty
+  reactimate' (fmap (\d -> mark d >> return ()) <$> cDirty)
+
+  -- (These are for debugging purposes and print only to the console)
   reactimate' $ fmap (\d -> print ("InputState: " ++ show d)) <$> cIn
   reactimate' $ fmap (\d -> print ("LastState: " ++ show d)) <$> cLIn
-  --reactimate (fmap (\_ -> fmap process bInputState) eDraws)
+
 
 process :: InputState -> IO ()
 process = displayOutput . fmap mkLayout . parseInput

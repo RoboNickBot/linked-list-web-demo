@@ -21,14 +21,15 @@ randomValueRange = ('A','Z')
    for later.
    -}
 
-mismatches :: InputState -> InputState -> (Bool,[Int])
-mismatches (InSt i1 s1 h1 m1) (InSt i2 s2 h2 m2) = 
+mismatches :: InputState -> Maybe InputState -> (Bool,[Int])
+mismatches (InSt i1 s1 h1 m1) (Just (InSt i2 s2 h2 m2)) = 
   let headChanged = h1 /= h2
       f = (matchIndex m1 m2)
   in (headChanged, (foldr 
                      f
                      []
                      [i1 .. (i1 + s1 - 1)] ))
+mismatches _ _ = (False,[]) -- if last InSt is Nothing, no change
 
 matchIndex :: M.Map Int Cell -> M.Map Int Cell -> Int -> [Int] -> [Int]
 matchIndex c b i is = let f m = (fmap snd (M.lookup i m)) 
