@@ -3,6 +3,9 @@ module Demo.JS ( readInputState
                , writeInputState
                , mkRandomInput
                , sDrawButton
+               , printHighError
+               , printLowError
+               , cullErrors
                , sRandomButton 
                , drawList
                , placeValues
@@ -14,6 +17,7 @@ module Demo.JS ( readInputState
 
 import Control.Monad
 import Control.Applicative
+import Text.Read (readMaybe)
 import JavaScript.JQuery
 import JavaScript.Canvas hiding (Left, Right)
 import GHCJS.Types
@@ -48,10 +52,15 @@ sCellNum i = select (pack (template (cellMkName i)))
                      ++ n 
                      ++ "\" type=\"text\" name=\"a\" /></div>"
 
-getGenInfo :: IO (String, String)
-getGenInfo = do start <- fmap unpack (sStartHead >>= getVal)
-                size <- fmap unpack (sNumCells >>= getVal)
-                return (start, size)
+getGenInfo :: IO (Either String (Int, Int))
+getGenInfo = 
+  do start <- fmap unpack (sStartHead >>= getVal)
+     size <- fmap unpack (sNumCells >>= getVal) 
+     case (readMaybe start, readMaybe size) of
+       (Nothing,_) -> return (Left "\"Starting Index\" requires Integer")
+       (Just _, Nothing) -> 
+         return (Left "\"Number of Memory Cells\" requires Integer")
+       (Just i, Just s) -> return (Right (i,s))
 
 placeValues :: Int -> Int -> IO ()
 placeValues start size = 
@@ -166,9 +175,9 @@ mkCanvas = do
   return ()
 
 displayOutput :: Either String Layout -> IO ()
-displayOutput l = cullError >> case l of
-                                 Left er -> printError er
-                                 Right ls -> drawList ls
+displayOutput l = cullErrors >> case l of
+                                  Left er -> printLowError er
+                                  Right ls -> drawList ls
 
 withPadding :: (Double, Double) -> (Double, Double)
 withPadding (x,y) = (x - (2 * canvasXPadding), y - (2 * canvasYPadding))
@@ -283,8 +292,19 @@ drawElem c scale elem =
                         
                         restore c
 
-cullError = return ()
-printError a = return ()
+cullErrors = select "#lowError" >>= remove
+             >> select "#highError" >>= remove
+             >> return ()
+
+printHighError = printError "highError" "#b"
+printLowError = printError "lowError" "#c"
+
+printError a b e = 
+  do err <- select (pack 
+                      ("<p class=\"errors\" id=\"" ++ a ++ "\">Error: (" ++ e ++ ")</p>"))
+     par <- select (pack b)
+     appendJQuery err par
+     return ()
 
 drawTextCenter :: Coord   -- location at which to center the text
                -> Double  -- maximum width of the text

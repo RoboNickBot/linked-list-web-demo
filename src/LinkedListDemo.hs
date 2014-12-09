@@ -15,15 +15,24 @@ defaultNumCells = 14
 
 main = do initializePage (defaultHeadIndex, defaultNumCells)
           (draw, rando, gener) <- mkSources
-          wireButton draw sDrawButton readInputState
-          wireButton rando sRandomButton mkRandomInput
-          wireButton gener sCellGen generateCells
+          wireButton draw sDrawButton (cullErrors >> readInputState)
+          wireButton rando sRandomButton (cullErrors >> mkRandomInput)
+          wireButton gener sCellGen (cullErrors >> generateCells)
           n <- compile (mkNetwork (draw, rando, gener))
           actuate n
 
 generateCells :: IO ()
-generateCells = do (start,size) <- getGenInfo
-                   initializePage (read start, read size)
+generateCells = 
+  do genInfo <- getGenInfo
+     case checkGenInfo =<< genInfo of
+       Right (start,size) -> initializePage (start,size)
+       Left err -> printHighError err
+
+checkGenInfo :: (Int,Int) -> Either String (Int,Int)
+checkGenInfo (i,s) 
+  | i < 0 = Left "Starting Index cannot be negative"
+  | s < 2 || s > 100 = Left "Number of Cells must be between 2 and 100"
+  | otherwise = Right (i,s)
 
 initializePage (start,size) = 
   placeValues start size
