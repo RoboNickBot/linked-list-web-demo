@@ -4,9 +4,13 @@ module Demo.JS ( readInputState
                , mkRandomInput
                , sDrawButton
                , printHighError
+               , sCellsDiv
+               , sNumCells
                , printLowError
                , cullErrors
+               , mark
                , sRandomButton 
+               , sLowerControls
                , drawList
                , placeValues
                , displayOutput
@@ -34,6 +38,7 @@ canvasXPadding = 1 :: Double
 canvasYPadding = 1 :: Double
 scaleMax = 100 :: Double
 
+sLowerControls = select "#c"
 sNumCells = select "#numcells"
 sStartHead = select "#starthead"
 sCellGen = select "#generatenew"
@@ -51,6 +56,37 @@ sCellNum i = select (pack (template (cellMkName i)))
                      ++ "</div><input id=\"" 
                      ++ n 
                      ++ "\" type=\"text\" name=\"a\" /></div>"
+
+mark :: (Bool, [Int]) -> IO ()
+mark (b,is) = markHead b >> unMarkCells >> markCells is
+
+markHead :: Bool -> IO ()
+markHead b = 
+  if b
+     then sHeadInput 
+          >>= setAttr "style" "border-color: red;" 
+          >> return ()
+     else sHeadInput
+          >>= setAttr "style" "border-color: black;"
+          >> return ()
+
+unMarkCells = do start <- pullVal sStartDiv
+                 size <- pullVal sSizeDiv
+                 let f a = select (pack ("#hey" ++ (show a)))
+                           >>= setAttr "style" "border-color: black;"
+                           >> return ()
+                     r i s = if i < s
+                                then f i >> r (i + 1) s
+                                else return ()
+                 r start (start + size)
+
+markCells is = do let r :: [Int] -> IO ()
+                      r (i:is) = f i >> r is
+                      r [] = return ()
+                      f a = select (pack ("#hey" ++ (show a)))
+                            >>= setAttr "style" "border-color: red;"
+                            >> return ()
+                  r is
 
 getGenInfo :: IO (Either String (Int, Int))
 getGenInfo = 

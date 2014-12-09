@@ -1,4 +1,4 @@
-{-# LANGUAGE CPP, OverloadedStrings #-}
+{-# LANGUAGE CPP, OverloadedStrings, ForeignFunctionInterface #-}
 
 import Reactive.Banana
 import Reactive.Banana.Frameworks
@@ -14,11 +14,19 @@ defaultHeadIndex = 23
 defaultNumCells = 14
 
 main = do initializePage (defaultHeadIndex, defaultNumCells)
-          (draw, rando, gener) <- mkSources
+          (draw, rando, gener, clicks, keys) <- mkSources
           wireButton draw sDrawButton (cullErrors >> readInputState)
-          wireButton rando sRandomButton (cullErrors >> mkRandomInput)
-          wireButton gener sCellGen (cullErrors >> generateCells)
-          n <- compile (mkNetwork (draw, rando, gener))
+          wireButton rando sRandomButton (cullErrors 
+                                          >> mkCanvas
+                                          >>mkRandomInput
+                                          >> readInputState)
+          wireButton 
+            gener 
+            sCellGen 
+            (cullErrors >> generateCells >> readInputState)
+          wireClicks clicks
+          wireKeys keys readInputState
+          n <- compile (mkNetwork (draw, rando, gener, clicks, keys))
           actuate n
 
 generateCells :: IO ()
@@ -39,7 +47,10 @@ initializePage (start,size) =
   >> writeInputState (emptyInput start size) 
   >> mkCanvas
 
-
+wireClicks _ = return () -- maybe implement this later?
+wireKeys (addHandler, fire) f = do let handler _ = f >>= fire
+                                   box <- sLowerControls
+                                   keyup handler def box
 
 wireButton (addHandler, fire) button f = do 
   let handler _ = f >>= fire
@@ -49,21 +60,37 @@ wireButton (addHandler, fire) button f = do
 mkSources = do a <- newAddHandler
                b <- newAddHandler
                c <- newAddHandler
-               return (a,b,c)
+               d <- newAddHandler
+               e <- newAddHandler
+               return (a,b,c,d,e)
 
 addHandler = fst
 fire = snd
 
-mkNetwork (drawSource, randomSource, genSource) = do 
+mkNetwork (drawSource, randomSource, genSource, clickSource, keySource) = do 
   eDraws <- fromAddHandler (addHandler drawSource)
   eRandoms <- fromAddHandler (addHandler randomSource)
-  let eInputs = eDraws `union` eRandoms
-      --bInputState :: Behavior t InputState
+  eGens <- fromAddHandler (addHandler genSource)
+  eKeys <- fromAddHandler (addHandler keySource)
+  let eResets = eRandoms `union` eGens
+      eInputs = eRandoms `union` eGens `union` eKeys
+      --bInputState :: Behavior t InputState 
       bInputState = stepper (emptyInput 5 20) eInputs
-      
+      eDrawnInputState = bInputState <@ eDraws
+      bLastInputState = stepper (emptyInput 5 20)
+                                (eDrawnInputState `union` eResets)
+      bDirty = mismatches <$> bInputState <*> bLastInputState
+  cIn <- changes bInputState
+  cLIn <- changes bLastInputState
+  cDirty <- changes bDirty
+
+
   --reactimate' $ fmap (\is -> process is) eISChanged
   --reactimate' <$> (fmap (fmap process) eISChanged)
   reactimate (fmap (\a -> mkCanvas >> process a) eDraws)
+  reactimate' $ fmap (\d -> mark d >> print (show d) >> return ()) <$> cDirty
+  reactimate' $ fmap (\d -> print ("InputState: " ++ show d)) <$> cIn
+  reactimate' $ fmap (\d -> print ("LastState: " ++ show d)) <$> cLIn
   --reactimate (fmap (\_ -> fmap process bInputState) eDraws)
 
 process :: InputState -> IO ()

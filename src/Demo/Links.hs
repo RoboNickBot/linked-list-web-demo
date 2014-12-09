@@ -3,12 +3,13 @@ module Demo.Links ( parseInput
                   , findScale 
                   , scaleMap
                   , nmap
+                  , mismatches
                   , mkLayout ) where
 
 import Text.Read (readMaybe)
 import System.Random
 import Demo.Types
-import qualified Data.Map as M (empty, lookup)
+import qualified Data.Map as M (Map, empty, lookup)
 import qualified Data.List as L (delete, length)
 
 -- Config!
@@ -19,6 +20,21 @@ randomValueRange = ('A','Z')
    especially concerning the use of monads, but we'll leave that
    for later.
    -}
+
+mismatches :: InputState -> InputState -> (Bool,[Int])
+mismatches (InSt i1 s1 h1 m1) (InSt i2 s2 h2 m2) = 
+  let headChanged = h1 /= h2
+      f = (matchIndex m1 m2)
+  in (headChanged, (foldr 
+                     f
+                     []
+                     [i1 .. (i1 + s1 - 1)] ))
+
+matchIndex :: M.Map Int Cell -> M.Map Int Cell -> Int -> [Int] -> [Int]
+matchIndex c b i is = let f m = (fmap snd (M.lookup i m)) 
+                      in if (f c) == (f b)
+                            then is
+                            else i:is
 
 {- There are two implemented functions for Step:
    1. arrow: "we're looking for an arrow next"
