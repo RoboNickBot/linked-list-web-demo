@@ -1,13 +1,12 @@
 # A Gentle Introduction to Linked Lists
 
-## A web-page demonstration of Linked Lists and how they are stored in
-   memory
-
-### Based (very very closely) on a Java Applet written by
+An interactive web-page demonstration of Linked Lists and how they are
+stored in memory based (very very closely) on a Java Applet written by
 [Michael Goldwasser](http://mathcs.slu.edu/~goldwasser/)
 
-Written as a SLU Senior Capstone Project for Fall 2014 and released
-under a BSD-style two-clause license (see [LICENSE](LICENSE)).
+This was written as a SLU Senior Capstone Project for Fall 2014 and is
+released under a BSD-style two-clause license (see
+[LICENSE](LICENSE)).
 
 It's now finished as far as the assignment goes, so I guess
 pull-requests are welcome!  I've added a
