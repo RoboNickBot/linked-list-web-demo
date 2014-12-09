@@ -1,3 +1,5 @@
+{- Some types and constructors for the project -}
+
 module Demo.Types ( InputState (..)
                   , emptyInput
                   , emptyCell
@@ -15,23 +17,23 @@ module Demo.Types ( InputState (..)
 
 import qualified Data.Map as M (Map, empty, lookup, insert)
 
-{- Here's a map of how these types are used:
+{- Here's a map of how the main types are used:
 
-   InputState ---> Diagram ---> Layout ----*----> Drawable
+   InputState ---> Diagram ---> Layout ----*----> LayoutD
                                           /
                  (canvas dimensions) ----*
 -}
 
--- (Cell Index, Cell contents)
+-- (cell Index, cell contents)
 type Cell = (Int, String)
--- M.Map (Cell Index) Cell
+-- M.Map (cell Index) Cell
 type MemSt = M.Map Int Cell
 
 mkMemSt :: [Cell] -> MemSt
 mkMemSt = foldr (\(i,s) -> M.insert i (i,s)) M.empty
 
 {- InputState: The current state of all the inputs on the
-               the webpage right now -}
+               the webpage  -}
 data InputState = InSt { startIndex :: Int
                        , cellCount :: Int
                        , headVal :: String
@@ -65,4 +67,6 @@ type LElem = (DElem, (Int, Int), (Int, Int))
            unit-size -}
 type Layout = [LElem]
 
+{- LayoutD: The Layout transformed with the scale-size as a Double
+            replacing the previous unit-size Ints -}
 type LayoutD = [(DElem, (Double, Double), (Double, Double))]

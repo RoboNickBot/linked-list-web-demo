@@ -16,9 +16,9 @@ import qualified Data.List as L (delete, length)
 randomEmptyCells = 2 :: Int
 randomValueRange = ('A','Z')
 
-{- I think there is a lot of refactoring-opportunity in here,
-   especially concerning the use of monads, but we'll leave that
-   for later.
+{- I think there is a lot of refactoring-opportunity in this file,
+   especially concerning the use of monads for parsing, but we'll 
+   leave that for later.
    -}
 
 mismatches :: InputState -> Maybe InputState -> (Bool,[Int])
@@ -77,9 +77,9 @@ box _ _ = []
 {- Failure for arrow: (end list)
    1. the arrow cell is empty/non-existant
    2. the value of the arrow cell is not an Int
-   2. the cell which the arrow points to is empty/invalid
+   3. the cell which the arrow points to is empty/invalid
    Special failure: (add loopback and end list)
-   3. the cell which the arrow points to is already seen
+   4. the cell which the arrow points to is already seen
    -}
 arrow :: Step
 arrow (m,s) (Just (i,val)) = 

@@ -1,0 +1,18 @@
+Some features I intend to implement
+
+* Improve randomInput function
+  Empty cells tend to bunch up at the end
+
+* Highlight cell-drawing relationships
+  On mouse-over of boxes and arrows in the drawn list, they and the
+  cell in the memory-edit area that they represent should highlight in
+  some way as a quick indication of their relationship
+
+* Improve sizing and centering of drawing area
+** Properly center the drawn lists in the drawing area
+** Get rid of that white-space at the bottom of the screen
+   (while making sure not to make a scroll-bar appear)
+** Make the drawing auto-resize whenever the window-size changes
+
+* General re-factoring
+  Particularly in JS.hs, it's kind of a mess in there
