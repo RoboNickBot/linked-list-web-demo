@@ -1,4 +1,5 @@
-Some features I intend to implement
+Some features I intend to implement (this is an Emacs Org-Mode notes
+file; I'm sorry if GitHub renders it weirdly)
 
 * Improve randomInput function
   Empty cells tend to bunch up at the end
