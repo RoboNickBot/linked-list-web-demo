@@ -16,19 +16,20 @@ import qualified Data.List as L (delete, length)
 randomEmptyCells = 2 :: Int
 randomValueRange = ('A','Z')
 
-{- I think there is a lot of refactoring-opportunity in here,
-   especially concerning the use of monads, but we'll leave that
-   for later.
+{- I think there is a lot of refactoring-opportunity in this file,
+   especially concerning the use of monads for parsing, but we'll 
+   leave that for later.
    -}
 
-mismatches :: InputState -> InputState -> (Bool,[Int])
-mismatches (InSt i1 s1 h1 m1) (InSt i2 s2 h2 m2) = 
+mismatches :: InputState -> Maybe InputState -> (Bool,[Int])
+mismatches (InSt i1 s1 h1 m1) (Just (InSt i2 s2 h2 m2)) = 
   let headChanged = h1 /= h2
       f = (matchIndex m1 m2)
   in (headChanged, (foldr 
                      f
                      []
                      [i1 .. (i1 + s1 - 1)] ))
+mismatches _ _ = (False,[]) -- if last InSt is Nothing, no change
 
 matchIndex :: M.Map Int Cell -> M.Map Int Cell -> Int -> [Int] -> [Int]
 matchIndex c b i is = let f m = (fmap snd (M.lookup i m)) 
@@ -76,9 +77,9 @@ box _ _ = []
 {- Failure for arrow: (end list)
    1. the arrow cell is empty/non-existant
    2. the value of the arrow cell is not an Int
-   2. the cell which the arrow points to is empty/invalid
+   3. the cell which the arrow points to is empty/invalid
    Special failure: (add loopback and end list)
-   3. the cell which the arrow points to is already seen
+   4. the cell which the arrow points to is already seen
    -}
 arrow :: Step
 arrow (m,s) (Just (i,val)) = 

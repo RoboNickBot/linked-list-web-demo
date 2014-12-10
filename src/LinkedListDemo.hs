@@ -14,18 +14,22 @@ defaultHeadIndex = 23
 defaultNumCells = 14
 
 main = do initializePage (defaultHeadIndex, defaultNumCells)
-          (draw, rando, gener, clicks, keys) <- mkSources
-          wireButton draw sDrawButton (cullErrors >> readInputState)
+          
+          -- init and connect reactive event-sources
+          (draw, rando, gener, clicks, keys) <- mkSources 
+          wireButton draw sDrawButton (cullErrors
+                                       >> readInputState)
           wireButton rando sRandomButton (cullErrors 
                                           >> mkCanvas
-                                          >>mkRandomInput
+                                          >> mkRandomInput
                                           >> readInputState)
-          wireButton 
-            gener 
-            sCellGen 
-            (cullErrors >> generateCells >> readInputState)
-          wireClicks clicks
+          wireButton gener sCellGen (cullErrors 
+                                     >> generateCells
+                                     >> readInputState)
+          wireClicks clicks -- does nothing for now
           wireKeys keys readInputState
+          
+          -- build and "actuate" the reactive event network
           n <- compile (mkNetwork (draw, rando, gener, clicks, keys))
           actuate n
 
@@ -36,6 +40,8 @@ generateCells =
        Right (start,size) -> initializePage (start,size)
        Left err -> printHighError err
 
+{- Tests number of cells and starting index to make sure they're valid.
+   Readability as Ints was already checked for in JS.hs code -}
 checkGenInfo :: (Int,Int) -> Either String (Int,Int)
 checkGenInfo (i,s) 
   | i < 0 = Left "Starting Index cannot be negative"
@@ -48,15 +54,19 @@ initializePage (start,size) =
   >> mkCanvas
 
 wireClicks _ = return () -- maybe implement this later?
+
+-- Events responding to keypresses in the memory editing area
 wireKeys (addHandler, fire) f = do let handler _ = f >>= fire
                                    box <- sLowerControls
                                    keyup handler def box
 
+-- convenience function for wiring all the buttons
 wireButton (addHandler, fire) button f = do 
   let handler _ = f >>= fire
   b <- button
   click handler def b
 
+-- sources are in the IO monad, so we have to do this?
 mkSources = do a <- newAddHandler
                b <- newAddHandler
                c <- newAddHandler
@@ -64,34 +74,56 @@ mkSources = do a <- newAddHandler
                e <- newAddHandler
                return (a,b,c,d,e)
 
+-- convenience
 addHandler = fst
 fire = snd
 
-mkNetwork (drawSource, randomSource, genSource, clickSource, keySource) = do 
+{- And now the fun stuff, describes the reactive "signal graph" of
+    events and behaviors, mainly used here to control when cells
+    are highlighted to show that they have been edited -}
+mkNetwork ( drawSource
+          , randomSource
+          , genSource
+          , clickSource
+          , keySource ) = do 
+
   eDraws <- fromAddHandler (addHandler drawSource)
   eRandoms <- fromAddHandler (addHandler randomSource)
   eGens <- fromAddHandler (addHandler genSource)
   eKeys <- fromAddHandler (addHandler keySource)
-  let eResets = eRandoms `union` eGens
+  
+  let -- some useful collections of event-sources
+      eResets = eRandoms `union` eGens
       eInputs = eRandoms `union` eGens `union` eKeys
-      --bInputState :: Behavior t InputState 
-      bInputState = stepper (emptyInput 5 20) eInputs
-      eDrawnInputState = bInputState <@ eDraws
-      bLastInputState = stepper (emptyInput 5 20)
-                                (eDrawnInputState `union` eResets)
+      
+      -- convenience for processing LastInputStates
+      bNothing :: Behavior t (Maybe InputState)
+      bNothing = pure Nothing
+      -- clicking 'draw' should only count if it actually draws
+      bTest :: Behavior t (InputState -> Maybe InputState)
+      bTest = pure (\inState -> case parseInput inState of
+                                  Left _ -> Nothing
+                                  Right _ -> Just inState)
+
+      bInputState = stepper (emptyInput 5 20) eInputs 
+      bLastInputState = 
+        stepper Nothing
+                ((bTest <@> eDraws) `union` (bNothing <@ eResets))
       bDirty = mismatches <$> bInputState <*> bLastInputState
+  
   cIn <- changes bInputState
   cLIn <- changes bLastInputState
   cDirty <- changes bDirty
 
-
-  --reactimate' $ fmap (\is -> process is) eISChanged
-  --reactimate' <$> (fmap (fmap process) eISChanged)
+  -- Draw the list!
   reactimate (fmap (\a -> mkCanvas >> process a) eDraws)
-  reactimate' $ fmap (\d -> mark d >> print (show d) >> return ()) <$> cDirty
+  -- Mark the "dirty" edited cells (or unmark them if clean)
+  reactimate' (fmap (\d -> mark d >> return ()) <$> cDirty)
+
+  -- (These are for debugging purposes and print only to the console)
   reactimate' $ fmap (\d -> print ("InputState: " ++ show d)) <$> cIn
   reactimate' $ fmap (\d -> print ("LastState: " ++ show d)) <$> cLIn
-  --reactimate (fmap (\_ -> fmap process bInputState) eDraws)
+
 
 process :: InputState -> IO ()
 process = displayOutput . fmap mkLayout . parseInput
