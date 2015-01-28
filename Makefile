@@ -1,7 +1,7 @@
 BIN= linked-list
 VERSION= 0.1.0.1
 BINDIR= $(BIN)-$(VERSION)
-DISTFILE= $(BINDER).tar.gz
+DISTFILE= $(BINDIR).tar.gz
 GHCJS= dist
 PROJECT= linked-list-web-demo
 INDEX= linked_list.html
