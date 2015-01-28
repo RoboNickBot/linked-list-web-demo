@@ -1,5 +1,5 @@
 name:                linked-list-web-demo
-version:             0.1.0.0
+version:             0.1.0.1
 synopsis:            An interactive web-page app that demonstrates Linked Lists
 license:             BSD2
 license-file:        LICENSE

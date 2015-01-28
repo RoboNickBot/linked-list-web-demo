@@ -1,41 +1,44 @@
-BIN= linked-list-dist
+BIN= linked-list
+VERSION= 0.1.0.1
+BINDIR= $(BIN)-$(VERSION)
+DISTFILE= $(BINDER).tar.gz
 GHCJS= dist
 PROJECT= linked-list-web-demo
 INDEX= linked_list.html
 SERVER= akira
 STAGE= :
-SETUP= "tar -xzf $(BIN).tgz && cp -vr $(BIN)/* /srv/www/demos/"
+SETUP= "tar -xzf $(DISTFILE) && cp -vr $(BINDIR)/* /srv/www/demos/"
 BROWSER= firefox
 
 all: build
 
 test: build
 	echo $(SETUP)
-	$(BROWSER) $(BIN)/$(INDEX)
+	$(BROWSER) $(BINDIR)/$(INDEX)
 
 deploy: package
-	scp $(BIN).tgz $(SERVER)$(STAGE)
+	scp $(DISTFILE) $(SERVER)$(STAGE)
 	ssh $(SERVER) $(SETUP)
 
 package: build
-	tar -czf $(BIN).tgz $(BIN)
+	tar -czf $(DISTFILE) $(BINDIR)
 
 build: ghcjs static
 
 ghcjs: bin
 	cabal configure --ghcjs
 	cabal build
-	cp -r $(GHCJS)/build/$(PROJECT)/*.jsexe $(BIN)
+	cp -r $(GHCJS)/build/$(PROJECT)/*.jsexe $(BINDIR)
 
 static: bin
-	cp static/*.html $(BIN); exit 0;
-	cp static/*.css $(BIN); exit 0;
-	cp static/*.js $(BIN); exit 0;
+	cp static/*.html $(BINDIR); exit 0;
+	cp static/*.css $(BINDIR); exit 0;
+	cp static/*.js $(BINDIR); exit 0;
 
 bin: clean
-	mkdir $(BIN)
+	mkdir $(BINDIR)
 
 clean:
-	rm $(BIN).tgz; exit 0;
-	rm -r $(BIN); exit 0;
+	rm $(DISTFILE); exit 0;
+	rm -r $(BINDIR); exit 0;
 	rm -r $(GHCJS); exit 0;

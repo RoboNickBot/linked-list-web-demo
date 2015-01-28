@@ -37,6 +37,7 @@ import Demo.Random
 canvasXPadding = 1 :: Double
 canvasYPadding = 1 :: Double
 scaleMax = 100 :: Double
+minCanHeight = 160
 
 sLowerControls = select "#c"
 sNumCells = select "#numcells"
@@ -193,7 +194,7 @@ getCanvasDimensions = do
   bh <- getHeight =<< select "#b"
   ch <- getHeight =<< select "#c"
   dw <- getWidth =<< select "#drawingbox"
-  let h = floor $ sh - ah - bh - ch - 170
+  let h = max minCanHeight (floor (sh - ah - bh - ch - 170))
       w = floor $ dw - 13 -- not sure why i need this...
   return (w,h)
   
